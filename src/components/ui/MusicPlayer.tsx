@@ -1,12 +1,10 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react"
-import { ensureAnalyser, ensureAudioContext, ensurePlaying, getAudio, isBookingSuspended, isMuted, setMuted, setTrack, setVolume, getVolume, setOutsideClubEffect } from "../../audio"
+import { ensureAnalyser, ensurePlaying, getAudio, isBookingSuspended, isMuted, setMuted, setTrack } from "../../audio"
 
 export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false)
   const [muted, setMutedState] = useState(false)
   const [needsGesture, setNeedsGesture] = useState(false)
-  const [volume, setVolumeState] = useState(0.35)
-  const [showVolume, setShowVolume] = useState(false)
   const startedRef = useRef(false)
 
   const tracks = useMemo(() => {
@@ -25,19 +23,13 @@ export default function MusicPlayer() {
     setTrack(tracks[0])
     const a = getAudio()
     a.muted = false
-    a.volume = 0.35
     setMutedState(a.muted)
-    setVolumeState(getVolume())
-
-    // Enable "outside club" muffled effect
-    setOutsideClubEffect(true)
 
     let cancelled = false
     const sync = () => {
       if (cancelled) return
       setPlaying(!a.paused && !a.ended)
       setMutedState(isMuted())
-      setVolumeState(getVolume())
     }
 
     const tryStart = async () => {
@@ -102,13 +94,6 @@ export default function MusicPlayer() {
     }
     setPlaying(!a.paused && !a.ended)
     setMutedState(isMuted())
-    setVolumeState(getVolume())
-  }
-
-  const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const vol = parseFloat(e.target.value)
-    setVolume(vol)
-    setVolumeState(vol)
   }
 
   if (tracks.length === 0) return null
@@ -117,40 +102,19 @@ export default function MusicPlayer() {
   const label = active ? "Sound On" : needsGesture ? "Enable Sound" : "Sound Off"
 
   return (
-    <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 z-50 pointer-events-auto flex flex-col-reverse items-end gap-2">
-      {/* Volume slider - appears on hover/focus */}
-      <div className={`flex items-center gap-2 bg-[#050505]/55 border border-midnight-gold/30 px-3 py-2 rounded-lg backdrop-blur-md transition-all duration-300 ${showVolume ? "opacity-100 translate-x-0 pointer-events-auto" : "opacity-0 translate-x-2 pointer-events-none"}`}>
-        <span className="text-[9px] font-display uppercase tracking-[0.2em] text-midnight-ivory/70">Vol</span>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
-          value={volume}
-          onChange={onVolumeChange}
-          className="w-24 h-1 appearance-none bg-midnight-muted/30 rounded accent-midnight-gold"
-          aria-label="Volume"
-        />
-        <span className="text-[9px] font-display text-midnight-ivory/70 w-8 text-right">{Math.round(volume * 100)}%</span>
-      </div>
-      <button
-        type="button"
-        onClick={onToggle}
-        onMouseEnter={() => setShowVolume(true)}
-        onFocus={() => setShowVolume(true)}
-        onMouseLeave={() => setShowVolume(false)}
-        onBlur={() => setShowVolume(false)}
-        className="flex items-center gap-2.5 border border-midnight-gold/30 bg-[#050505]/55 px-4 py-2.5 text-[9px] md:text-[10px] font-display uppercase tracking-[0.28em] text-midnight-ivory/90 backdrop-blur-md hover:border-midnight-gold/60 hover:bg-[#050505]/75 transition-colors duration-300 pl-[calc(1rem+0.28em)]"
-        aria-label={label}
-        aria-pressed={active}
-        title={label}
-      >
-        <span className="relative inline-flex h-2.5 w-2.5 items-center justify-center">
-          {active && <span className="absolute inline-flex h-full w-full rounded-full bg-midnight-gold/50 animate-ping" />}
-          <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${active ? "bg-midnight-gold shadow-[0_0_10px_rgba(198,173,120,0.8)]" : "bg-midnight-muted/60"}`} />
-        </span>
-        {label}
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={onToggle}
+      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 z-50 pointer-events-auto flex items-center gap-2.5 border border-midnight-gold/30 bg-[#050505]/55 px-4 py-2.5 text-[9px] md:text-[10px] font-display uppercase tracking-[0.28em] text-midnight-ivory/90 backdrop-blur-md hover:border-midnight-gold/60 hover:bg-[#050505]/75 transition-colors duration-300 pl-[calc(1rem+0.28em)]"
+      aria-label={label}
+      aria-pressed={active}
+      title={label}
+    >
+      <span className="relative inline-flex h-2.5 w-2.5 items-center justify-center">
+        {active && <span className="absolute inline-flex h-full w-full rounded-full bg-midnight-gold/50 animate-ping" />}
+        <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${active ? "bg-midnight-gold shadow-[0_0_10px_rgba(198,173,120,0.8)]" : "bg-midnight-muted/60"}`} />
+      </span>
+      {label}
+    </button>
   )
 }
