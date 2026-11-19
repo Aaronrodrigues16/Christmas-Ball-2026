@@ -10,7 +10,6 @@ declare global {
 }
 
 import QRCode from "qrcode"
-import { pauseForBooking, resumeAfterBooking } from "../../audio"
 import { supabase } from "../../lib/supabase"
 
 async function loadScript(src: string): Promise<boolean> {
@@ -63,7 +62,6 @@ export default function CheckoutModal({ open, onClose }: Props) {
     if (!open) return
     const prev = document.body.style.overflow
     document.body.style.overflow = "hidden"
-    pauseForBooking()
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && status !== "confirming" && status !== "paying") onClose() }
     window.addEventListener("keydown", onKey)
     return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey) }
@@ -157,13 +155,11 @@ export default function CheckoutModal({ open, onClose }: Props) {
             })))
             setConfirmed({ tickets, total: polled.total_amount, name: form.name })
             setStatus("success")
-            resumeAfterBooking()
           } else if (["FAILED", "CANCELLED", "EXPIRED"].includes(polled.status)) {
             throw new Error(`Payment ${String(polled.status).toLowerCase()}. Please try again.`)
           } else {
             setConfirmed({ tickets: [], total: totalAmt, name: form.name, pending: true })
             setStatus("success")
-            resumeAfterBooking()
           }
         },
         modal: { ondismiss: () => { setStatus("error"); setError("Payment cancelled") } },
@@ -175,7 +171,6 @@ export default function CheckoutModal({ open, onClose }: Props) {
       rzp.on("payment.failed", () => {
         setStatus("error")
         setError("Payment failed. Please try again.")
-        resumeAfterBooking()
       })
       rzp.open()
 
@@ -188,17 +183,17 @@ export default function CheckoutModal({ open, onClose }: Props) {
           setConfirmed(prev => prev ? { ...prev, tickets } : null)
         }
       })
-    } catch (err: any) { setStatus("error"); setError(err?.message || "Something went wrong"); resumeAfterBooking() }
+    } catch (err: any) { setStatus("error"); setError(err?.message || "Something went wrong") }
   }
 
   if (!open) return null
   return createPortal(
     <div className="fixed inset-0 z-[120] flex justify-end" role="dialog" aria-modal="true" aria-label="Checkout">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => { if (!(status === "paying" || status === "confirming")) { resumeAfterBooking(); onClose(); } }} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => { if (!(status === "paying" || status === "confirming")) { onClose(); } }} aria-hidden="true" />
       <div className="relative z-[1] w-full sm:max-w-lg h-[100dvh] bg-midnight-bg border-l border-midnight-gold/25 shadow-[0_30px_120px_rgba(0,0,0,0.7)] flex flex-col">
         <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-midnight-gold/15 bg-midnight-bg2/60">
           <h2 className="font-editorial italic text-xl md:text-2xl text-midnight-ivory">Checkout</h2>
-          <button type="button" onClick={() => { if (!(status === "paying" || status === "confirming")) { resumeAfterBooking(); onClose(); } }} className="text-midnight-muted hover:text-midnight-ivory transition-colors" aria-label="Close">
+          <button type="button" onClick={() => { if (!(status === "paying" || status === "confirming")) { onClose(); } }} className="text-midnight-muted hover:text-midnight-ivory transition-colors" aria-label="Close">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
@@ -237,7 +232,7 @@ export default function CheckoutModal({ open, onClose }: Props) {
                   We&apos;ll email your QR tickets once payment is confirmed by Razorpay.
                 </div>
               )}
-              <button type="button" onClick={() => { resumeAfterBooking(); onClose(); }} className="btn-gold w-full py-3 font-display text-[10px] tracking-[0.3em] uppercase mt-2">Close</button>
+              <button type="button" onClick={() => { onClose(); }} className="btn-gold w-full py-3 font-display text-[10px] tracking-[0.3em] uppercase mt-2">Close</button>
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-6">

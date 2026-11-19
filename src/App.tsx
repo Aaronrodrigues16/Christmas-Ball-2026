@@ -2,7 +2,7 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import Scene from './components/Scene'
-import { setTrack, getAudio } from './audio'
+import { startBackgroundAudio } from './audio'
 import TrailerOverlay from './components/ui/TrailerOverlay'
 import musicTrack from './assets/music/Black Santa Amapiano.mp3'
 import Countdown from './components/ui/Countdown'
@@ -20,8 +20,8 @@ const ScannerPage = lazy(() => import('./components/ui/ScannerPage'))
 
 function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | null }) {
   useEffect(() => {
-    // Start audio immediately on landing page mount
-    setTrack(musicTrack)
+    // Reset to the start and attempt playback on every full page load/refresh
+    startBackgroundAudio(musicTrack)
   }, [])
   return (
     <div className="relative w-full min-h-screen bg-midnight-bg text-midnight-ivory">
@@ -72,7 +72,6 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
           <Reveal><footer className="section-shell py-10 px-6 text-center flex flex-col items-center"><div className="gold-rule max-w-xs w-full mx-auto mb-6 opacity-40" /><p className="font-display text-[10px] tracking-[0.32em] uppercase text-midnight-muted pl-[0.32em]">A PCPL Presentation ï¿½ OCB MMXXVI</p></footer></Reveal>
         </Suspense>
       </main>
-      {/* <MusicPlayer /> */}
     </div>
   )
 }

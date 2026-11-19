@@ -1,140 +1,141 @@
-// Shared audio singleton - plays continuously from start on every load
+// Single controller for the site's background track.
+// - A full page load/refresh resets playback to 0 and the track loops forever.
+// - Playback is attempted immediately; if the browser blocks unmuted autoplay,
+//   the first interaction anywhere on the page unlocks it.
+// - There is no pause/mute control: once started, the music keeps playing.
+
 let audio: HTMLAudioElement | null = null
 let ctx: AudioContext | null = null
 let analyser: AnalyserNode | null = null
 let source: MediaElementAudioSourceNode | null = null
 let dataArray: Uint8Array | null = null
-let timeArray: Uint8Array | null = null
 let currentUrl: string | null = null
-let autoplayAttempted = false
-let interactionListenerAdded = false
+let started = false
+let unlockHandler: (() => void) | null = null
+
+const UNLOCK_EVENTS = ['pointerdown', 'click', 'keydown', 'touchstart'] as const
 
 export function getAudio(): HTMLAudioElement {
   if (audio) return audio
-  audio = document.createElement('audio')
-  audio.preload = 'auto'
-  audio.crossOrigin = 'anonymous'
-  audio.loop = true
-  audio.volume = 0.35
-  audio.muted = false
-  audio.setAttribute('playsinline', '')
-  audio.setAttribute('webkit-playsinline', '')
-  audio.style.display = 'none'
-  document.body.appendChild(audio)
+  const el = document.createElement('audio')
+  el.preload = 'auto'
+  el.loop = true
+  el.volume = 0.35
+  el.muted = false
+  el.setAttribute('playsinline', '')
+  el.setAttribute('webkit-playsinline', '')
+  el.style.display = 'none'
+  document.body.appendChild(el)
+  audio = el
 
-  // Attempt immediate autoplay on canplay
-  audio.addEventListener('canplay', () => {
-    if (!audio) return
-    if (!autoplayAttempted) {
-      autoplayAttempted = true
-      attemptAutoplay()
-    }
-  })
-
-  // Retry on visibility/focus (tab switch back, page restore)
+  // Keep the track continuous if the browser suspends it on tab/window changes.
+  // No seek here - only a fresh page load resets to 0.
+  const resumeIfPaused = () => {
+    if (el.paused) void play()
+  }
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && audio && audio.paused) {
-      void attemptAutoplay()
-    }
+    if (document.visibilityState === 'visible') resumeIfPaused()
   })
-  window.addEventListener('focus', () => {
-    if (audio && audio.paused) {
-      void attemptAutoplay()
-    }
-  })
+  window.addEventListener('focus', resumeIfPaused)
 
-  return audio
+  return el
 }
 
-async function attemptAutoplay() {
-  if (!audio) return
+// Called once on mount (i.e. on every full load/refresh).
+export function startBackgroundAudio(url: string) {
+  const el = getAudio()
+  if (currentUrl !== url) {
+    currentUrl = url
+    // Vite resolves the imported MP3 to a same-origin hashed URL, so no
+    // crossOrigin attribute is needed (CORS mode can break media on some hosts).
+    el.src = url
+    el.load()
+  }
+  // Explicit reset only on load/refresh - never on retries or interactions.
+  const reset = () => {
+    try {
+      if (el.currentTime !== 0) el.currentTime = 0
+    } catch {
+      // Metadata not available yet; a fresh element already starts at 0.
+    }
+  }
+  if (el.readyState >= el.HAVE_METADATA) reset()
+  else el.addEventListener('loadedmetadata', reset, { once: true })
+
+  void play()
+}
+
+async function play(): Promise<boolean> {
+  const el = getAudio()
   try {
-    // Always reset to start on new play attempt
-    audio.currentTime = 0
-    await audio.play()
+    await el.play()
+    started = true
+    removeUnlockListeners()
+    // Build the analyser only after playback succeeds. Creating an AudioContext
+    // before the autoplay unlock leaves it suspended, which silences the track.
     ensureAnalyser()
-    console.log('[audio] Playback started')
-  } catch (e) {
-    console.log('[audio] Autoplay blocked, waiting for first interaction')
-    // Fallback: wait for first user interaction
-    addInteractionListener()
-  }
-}
-
-// One-time interaction listener - starts audio on first user interaction anywhere
-function addInteractionListener() {
-  if (interactionListenerAdded || typeof window === 'undefined') return
-  interactionListenerAdded = true
-
-  const startOnInteraction = async () => {
-    if (audio && audio.paused) {
-      try {
-        audio.currentTime = 0
-        await audio.play()
-        ensureAnalyser()
-        console.log('[audio] Started on user interaction')
-      } catch (e) {
-        console.log('[audio] Interaction play failed:', e)
-      }
+    if (ctx?.state === 'suspended') void ctx.resume().catch(() => {})
+    return true
+  } catch (error) {
+    if ((error as DOMException)?.name === 'NotAllowedError') {
+      console.info('[audio] Autoplay blocked - waiting for first interaction')
+    } else {
+      console.info('[audio] Play attempt failed - waiting for first interaction', error)
     }
+    attachUnlockListeners()
+    return false
   }
-
-  // Attach to all common interaction events
-  window.addEventListener('pointerdown', startOnInteraction, { passive: true })
-  window.addEventListener('touchstart', startOnInteraction, { passive: true })
-  window.addEventListener('keydown', startOnInteraction)
-  window.addEventListener('click', startOnInteraction)
 }
 
-export function setTrack(url: string) {
-  const a = getAudio()
-  if (currentUrl === url) return
-  currentUrl = url
-  a.src = url
-  a.load()
+function attachUnlockListeners() {
+  if (unlockHandler || started) return
+  const unlock = () => {
+    // Detach from every target/event first: this is a genuine one-shot unlock.
+    removeUnlockListeners()
+    if (audio?.paused) void play()
+  }
+  unlockHandler = unlock
+  for (const event of UNLOCK_EVENTS) {
+    window.addEventListener(event, unlock, { passive: true })
+    document.addEventListener(event, unlock, { passive: true })
+  }
 }
 
-// For checkout - pause during payment
-export function pauseForBooking() {
-  if (audio) audio.pause()
-}
-
-// For checkout - resume after payment
-export function resumeAfterBooking() {
-  if (audio && audio.paused) {
-    void attemptAutoplay()
+function removeUnlockListeners() {
+  const handler = unlockHandler
+  if (!handler) return
+  unlockHandler = null
+  for (const event of UNLOCK_EVENTS) {
+    window.removeEventListener(event, handler)
+    document.removeEventListener(event, handler)
   }
 }
 
 export function isPlaying(): boolean {
-  const a = audio
-  return !!a && !a.paused && !a.ended
+  const el = audio
+  return !!el && !el.paused && !el.ended
 }
 
+// Feeds the 3D scene visualisers. No-op until playback is actually unlocked.
 export function ensureAnalyser() {
-  if (analyser && dataArray) return
-  const a = getAudio()
+  if (!started || analyser || dataArray) return
+  const el = getAudio()
   try {
     const AC = window.AudioContext || (window as any).webkitAudioContext
     if (!AC) return
     if (!ctx) ctx = new AC()
     if (ctx.state === 'suspended') void ctx.resume().catch(() => {})
     if (!source) {
-      source = ctx.createMediaElementSource(a)
-      
+      source = ctx.createMediaElementSource(el)
       analyser = ctx.createAnalyser()
       analyser.fftSize = 256
       analyser.smoothingTimeConstant = 0.75
-      
-      // Connect: source -> analyser -> destination
       source.connect(analyser)
       analyser.connect(ctx.destination)
-      
       dataArray = new Uint8Array(analyser.frequencyBinCount)
-      timeArray = new Uint8Array(analyser.fftSize)
     }
   } catch {
-    // Web Audio may fail on some browsers; audio still plays without analysis
+    // Web Audio may be unavailable; the track still plays without analysis.
   }
 }
 
