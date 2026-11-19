@@ -39,7 +39,7 @@ This makes a read-only `GET /v1/orders` call (no side effects) and prints the ex
 ## Step 3: Razorpay webhook (Test Mode)
 
 1. Dashboard (Test Mode) → Settings → Webhooks → Add New Webhook.
-2. URL: `https://christmasball26.vercel.app/api/razorpay-webhook`
+2. URL: `https://christmas-ball-2026.vercel.app/api/razorpay-webhook`
 3. Secret: the same value as `RAZORPAY_WEBHOOK_SECRET`.
 4. Events: `payment.captured` (required). Other payment, order, refund and dispute events may be subscribed; they are acknowledged with HTTP 200 and ignored.
 5. Save, then use the Dashboard's webhook test feature to confirm a `payment.captured` sample returns 200.

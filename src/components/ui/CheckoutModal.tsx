@@ -267,7 +267,7 @@ export default function CheckoutModal({ open, onClose }: Props) {
               <button type="submit" disabled={status === "loading" || status === "paying" || status === "confirming"} className="btn-gold w-full py-3.5 font-display text-[10px] tracking-[0.32em] uppercase disabled:opacity-50">
                 {status === "loading" ? "Creating order…" : status === "paying" ? "Completing payment…" : status === "confirming" ? "Confirming booking…" : "Pay Securely"}
               </button>
-              <p className="text-center font-display text-[9px] tracking-[0.14em] uppercase text-midnight-muted/70">Total ₹{totalAmt.toLocaleString("en-IN")} · Secure via Razorpay · use <code className="normal-case">npx vercel dev</code> for local API</p>
+              <p className="text-center font-display text-[9px] tracking-[0.14em] uppercase text-midnight-muted/70">Total ₹{totalAmt.toLocaleString("en-IN")} · Secure via Razorpay</p>
             </form>
           )}
         </div>
