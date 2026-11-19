@@ -52,6 +52,18 @@ export function getAudio(): HTMLAudioElement {
     }
   })
 
+  // Aggressive retry: keep trying to play when page becomes visible/focused
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && audio && audio.paused && !bookingSuspend) {
+      void attemptAutoplay()
+    }
+  })
+  window.addEventListener('focus', () => {
+    if (audio && audio.paused && !bookingSuspend) {
+      void attemptAutoplay()
+    }
+  })
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && audio && !audio.paused && ctx && ctx.state === 'suspended') {
       void ctx.resume().catch(() => {})
@@ -80,7 +92,7 @@ async function attemptAutoplay() {
   }
 }
 
-// Global interaction listener to start audio on first user interaction
+// Global interaction listener as final fallback - retries on any user interaction
 let interactionListenerAdded = false
 function addInteractionListener() {
   if (interactionListenerAdded || typeof window === 'undefined') return
@@ -101,13 +113,6 @@ function addInteractionListener() {
       } catch (e) {
         console.log('[audio] Interaction play failed:', e)
       }
-    }
-    // Remove listeners after first successful play
-    if (!audio?.paused) {
-      window.removeEventListener('pointerdown', startOnInteraction)
-      window.removeEventListener('touchstart', startOnInteraction)
-      window.removeEventListener('keydown', startOnInteraction)
-      window.removeEventListener('click', startOnInteraction)
     }
   }
   window.addEventListener('pointerdown', startOnInteraction, { passive: true })
