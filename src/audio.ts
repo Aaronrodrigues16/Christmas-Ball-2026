@@ -1,5 +1,4 @@
-// Shared audio singleton - independent of React render cycle so playback
-// continues smoothly even if the 3D scene stutters or view changes.
+// Shared audio singleton - plays continuously from start on every load
 let audio: HTMLAudioElement | null = null
 let ctx: AudioContext | null = null
 let analyser: AnalyserNode | null = null
@@ -7,14 +6,8 @@ let source: MediaElementAudioSourceNode | null = null
 let dataArray: Uint8Array | null = null
 let timeArray: Uint8Array | null = null
 let currentUrl: string | null = null
-let bookingSuspend = false
-let userVolume = 0.35
 let autoplayAttempted = false
-
-// Start near/after the drop and let the track continue (looping full track).
-// Adjust SEGMENT_START if you want the drop earlier/later in this specific track.
-export const SEGMENT_START = 70
-export const SEGMENT_END = Number.POSITIVE_INFINITY
+let interactionListenerAdded = false
 
 export function getAudio(): HTMLAudioElement {
   if (audio) return audio
@@ -22,51 +15,31 @@ export function getAudio(): HTMLAudioElement {
   audio.preload = 'auto'
   audio.crossOrigin = 'anonymous'
   audio.loop = true
-  audio.volume = userVolume
+  audio.volume = 0.35
   audio.muted = false
   audio.setAttribute('playsinline', '')
   audio.setAttribute('webkit-playsinline', '')
   audio.style.display = 'none'
   document.body.appendChild(audio)
 
-  const seekToStart = () => {
-    if (!audio) return
-    const dur = audio.duration
-    const safeStart =
-      isFinite(dur) && dur > 1 ? Math.min(SEGMENT_START, Math.max(0, dur - 1)) : SEGMENT_START
-    if (audio.currentTime < safeStart - 0.25) audio.currentTime = safeStart
-  }
-
-  audio.addEventListener('loadedmetadata', seekToStart)
+  // Attempt immediate autoplay on canplay
   audio.addEventListener('canplay', () => {
     if (!audio) return
-    const dur = audio.duration
-    if (!isFinite(dur) || dur <= 1) return
-    if (audio.currentTime < Math.min(SEGMENT_START, dur - 1) - 0.25) {
-      audio.currentTime = Math.min(SEGMENT_START, dur - 1)
-    }
     if (!autoplayAttempted) {
       autoplayAttempted = true
       attemptAutoplay()
-      addInteractionListener()
     }
   })
 
-  // Aggressive retry: keep trying to play when page becomes visible/focused
+  // Retry on visibility/focus (tab switch back, page restore)
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && audio && audio.paused && !bookingSuspend) {
+    if (document.visibilityState === 'visible' && audio && audio.paused) {
       void attemptAutoplay()
     }
   })
   window.addEventListener('focus', () => {
-    if (audio && audio.paused && !bookingSuspend) {
+    if (audio && audio.paused) {
       void attemptAutoplay()
-    }
-  })
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && audio && !audio.paused && ctx && ctx.state === 'suspended') {
-      void ctx.resume().catch(() => {})
     }
   })
 
@@ -74,39 +47,29 @@ export function getAudio(): HTMLAudioElement {
 }
 
 async function attemptAutoplay() {
-  if (!audio || bookingSuspend) return
+  if (!audio) return
   try {
-    const dur = audio.duration
-    if (isFinite(dur) && dur > 1) {
-      const start = Math.min(SEGMENT_START, Math.max(0, dur - 1))
-      if (audio.currentTime < start - 0.25) audio.currentTime = start
-    } else if (audio.currentTime < SEGMENT_START - 0.25) {
-      audio.currentTime = SEGMENT_START
-    }
+    // Always reset to start on new play attempt
+    audio.currentTime = 0
     await audio.play()
     ensureAnalyser()
-    console.log('[audio] Autoplay succeeded')
+    console.log('[audio] Playback started')
   } catch (e) {
-    console.log('[audio] Autoplay blocked, waiting for user interaction:', e)
-    // Autoplay blocked - will need user interaction
+    console.log('[audio] Autoplay blocked, waiting for first interaction')
+    // Fallback: wait for first user interaction
+    addInteractionListener()
   }
 }
 
-// Global interaction listener as final fallback - retries on any user interaction
-let interactionListenerAdded = false
+// One-time interaction listener - starts audio on first user interaction anywhere
 function addInteractionListener() {
   if (interactionListenerAdded || typeof window === 'undefined') return
   interactionListenerAdded = true
+
   const startOnInteraction = async () => {
-    if (audio && audio.paused && !bookingSuspend) {
+    if (audio && audio.paused) {
       try {
-        const dur = audio.duration
-        if (isFinite(dur) && dur > 1) {
-          const start = Math.min(SEGMENT_START, Math.max(0, dur - 1))
-          if (audio.currentTime < start - 0.25) audio.currentTime = start
-        } else if (audio.currentTime < SEGMENT_START - 0.25) {
-          audio.currentTime = SEGMENT_START
-        }
+        audio.currentTime = 0
         await audio.play()
         ensureAnalyser()
         console.log('[audio] Started on user interaction')
@@ -115,6 +78,8 @@ function addInteractionListener() {
       }
     }
   }
+
+  // Attach to all common interaction events
   window.addEventListener('pointerdown', startOnInteraction, { passive: true })
   window.addEventListener('touchstart', startOnInteraction, { passive: true })
   window.addEventListener('keydown', startOnInteraction)
@@ -129,73 +94,21 @@ export function setTrack(url: string) {
   a.load()
 }
 
-export async function ensurePlaying(): Promise<boolean> {
-  if (bookingSuspend) return false
-  const a = getAudio()
-  try {
-    const dur = a.duration
-    if (isFinite(dur) && dur > 1) {
-      const start = Math.min(SEGMENT_START, Math.max(0, dur - 1))
-      // Only force-seek if we're before the desired start (initial playback).
-      if (a.currentTime < start - 0.25) a.currentTime = start
-    } else if (a.currentTime < SEGMENT_START - 0.25) {
-      a.currentTime = SEGMENT_START
-    }
-    await a.play()
-    return true
-  } catch {
-    // Autoplay blocked - user interaction required
-    return false
-  }
-}
-
-// New function: initialize audio context without playing (for visualizer)
-export async function ensureAudioContext(): Promise<boolean> {
-  try {
-    ensureAnalyser()
-    return true
-  } catch {
-    return false
-  }
-}
-
+// For checkout - pause during payment
 export function pauseForBooking() {
-  bookingSuspend = true
-  if (audio) {
-    audio.pause()
-  }
+  if (audio) audio.pause()
 }
 
+// For checkout - resume after payment
 export function resumeAfterBooking() {
-  bookingSuspend = false
-  const a = getAudio()
-  if (a.paused) {
-    void ensurePlaying()
+  if (audio && audio.paused) {
+    void attemptAutoplay()
   }
-}
-
-export function isBookingSuspended(): boolean {
-  return bookingSuspend
 }
 
 export function isPlaying(): boolean {
   const a = audio
   return !!a && !a.paused && !a.ended
-}
-
-export function setMuted(m: boolean) {
-  getAudio().muted = m
-}
-
-export function setVolume(vol: number) {
-  userVolume = Math.max(0, Math.min(1, vol))
-  if (audio) {
-    audio.volume = userVolume
-  }
-}
-
-export function getVolume(): number {
-  return userVolume
 }
 
 export function ensureAnalyser() {

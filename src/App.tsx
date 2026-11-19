@@ -2,7 +2,7 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import Scene from './components/Scene'
-import { ensurePlaying, setTrack, getAudio } from './audio'
+import { setTrack, getAudio } from './audio'
 import TrailerOverlay from './components/ui/TrailerOverlay'
 import musicTrack from './assets/music/Black Santa Amapiano.mp3'
 import Countdown from './components/ui/Countdown'
@@ -21,7 +21,6 @@ const ScannerPage = lazy(() => import('./components/ui/ScannerPage'))
 function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | null }) {
   useEffect(() => {
     // Start audio immediately on landing page mount
-    ensurePlaying()
     setTrack(musicTrack)
   }, [])
   return (
