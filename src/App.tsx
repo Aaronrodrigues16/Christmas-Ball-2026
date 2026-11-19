@@ -1,4 +1,4 @@
-import { Canvas } from '@react-three/fiber'
+﻿import { Canvas } from '@react-three/fiber'
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import Scene from './components/Scene'
@@ -37,10 +37,10 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
             transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <Canvas
-              dpr={isMobile ? [1, 1.3] : [1, 2]}
+              dpr={isMobile ? [1, 1.3] : [1, 1.5]}
               camera={{ position: [0, 0.25, 7.6], fov: isMobile ? 48 : 42 }}
               gl={{ antialias: !isMobile, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: false }}
-              frameloop="demand"
+              frameloop="always"
               performance={{ min: 0.5, max: isMobile ? 0.8 : 1.0 }}
             >
               <Suspense fallback={null}>
@@ -56,7 +56,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
         </section>
 
         <Suspense fallback={null}>
-          <Reveal><section id="countdown" className="section-shell relative py-20 md:py-28 px-6"><div className="max-w-5xl mx-auto text-center flex flex-col items-center"><p className="font-display text-[10px] md:text-[11px] tracking-[0.38em] uppercase text-midnight-goldMuted mb-4 pl-[0.38em]">Countdown to Midnight</p><h2 className="font-editorial italic text-3xl md:text-5xl text-midnight-ivory mb-4">Orlem Christmas Ball 2026</h2><p className="font-display text-[11px] md:text-xs tracking-[0.2em] uppercase text-midnight-muted mb-10 md:mb-14 pl-[0.2em] max-w-3xl">25 December 2026 � 7:30 PM onwards � St. Joseph School Turf Ground, Orlem, Malad</p><Countdown /></div></section></Reveal>
+          <Reveal><section id="countdown" className="section-shell relative py-20 md:py-28 px-6"><div className="max-w-5xl mx-auto text-center flex flex-col items-center"><p className="font-display text-[10px] md:text-[11px] tracking-[0.38em] uppercase text-midnight-goldMuted mb-4 pl-[0.38em]">Countdown to Midnight</p><h2 className="font-editorial italic text-3xl md:text-5xl text-midnight-ivory mb-4">Orlem Christmas Ball 2026</h2><p className="font-display text-[11px] md:text-xs tracking-[0.2em] uppercase text-midnight-muted mb-10 md:mb-14 pl-[0.2em] max-w-3xl">25 December 2026 ï¿½ 7:30 PM onwards ï¿½ St. Joseph School Turf Ground, Orlem, Malad</p><Countdown /></div></section></Reveal>
           <Reveal><EventDetails /></Reveal>
           <Reveal><HeadlinerSection /></Reveal>
           <Reveal><TicketSection /></Reveal>
@@ -64,7 +64,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
           <Reveal><GalleryTeaser /></Reveal>
           <Reveal><RsvpSection /></Reveal>
           <Reveal><VenueSection /></Reveal>
-          <Reveal><footer className="section-shell py-10 px-6 text-center flex flex-col items-center"><div className="gold-rule max-w-xs w-full mx-auto mb-6 opacity-40" /><p className="font-display text-[10px] tracking-[0.32em] uppercase text-midnight-muted pl-[0.32em]">A PCPL Presentation � OCB MMXXVI</p></footer></Reveal>
+          <Reveal><footer className="section-shell py-10 px-6 text-center flex flex-col items-center"><div className="gold-rule max-w-xs w-full mx-auto mb-6 opacity-40" /><p className="font-display text-[10px] tracking-[0.32em] uppercase text-midnight-muted pl-[0.32em]">A PCPL Presentation ï¿½ OCB MMXXVI</p></footer></Reveal>
         </Suspense>
       </main>
       <MusicPlayer />
@@ -89,6 +89,7 @@ export default function App() {
   }
   return <Landing isMobile={isMobile} reduce={reduce} />
 }
+
 
 
 
