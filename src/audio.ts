@@ -8,7 +8,8 @@ let dataArray: Uint8Array | null = null
 let timeArray: Uint8Array | null = null
 let currentUrl: string | null = null
 let bookingSuspend = false
-let userVolume = 0.35 // Lower default volume for "outside club" feel
+let userVolume = 0.35
+let autoplayAttempted = false
 
 // Start near/after the drop and let the track continue (looping full track).
 // Adjust SEGMENT_START if you want the drop earlier/later in this specific track.
@@ -23,10 +24,8 @@ export function getAudio(): HTMLAudioElement {
   audio.loop = true
   audio.volume = userVolume
   audio.muted = false
-  // No autoplay - browser policy requires user interaction first
   audio.setAttribute('playsinline', '')
   audio.setAttribute('webkit-playsinline', '')
-  // Keep element out of layout but in DOM for mobile compatibility
   audio.style.display = 'none'
   document.body.appendChild(audio)
 
@@ -35,22 +34,23 @@ export function getAudio(): HTMLAudioElement {
     const dur = audio.duration
     const safeStart =
       isFinite(dur) && dur > 1 ? Math.min(SEGMENT_START, Math.max(0, dur - 1)) : SEGMENT_START
-    // On first load jump to the desired start; allow natural looping after that.
     if (audio.currentTime < safeStart - 0.25) audio.currentTime = safeStart
   }
 
   audio.addEventListener('loadedmetadata', seekToStart)
   audio.addEventListener('canplay', () => {
-    // Ensure first audible playback begins near the selected start point.
     if (!audio) return
     const dur = audio.duration
     if (!isFinite(dur) || dur <= 1) return
     if (audio.currentTime < Math.min(SEGMENT_START, dur - 1) - 0.25) {
       audio.currentTime = Math.min(SEGMENT_START, dur - 1)
     }
+    if (!autoplayAttempted) {
+      autoplayAttempted = true
+      attemptAutoplay()
+    }
   })
 
-  // Resume if browser suspends audio when returning to the tab/app
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && audio && !audio.paused && ctx && ctx.state === 'suspended') {
       void ctx.resume().catch(() => {})
@@ -58,6 +58,23 @@ export function getAudio(): HTMLAudioElement {
   })
 
   return audio
+}
+
+async function attemptAutoplay() {
+  if (!audio || bookingSuspend) return
+  try {
+    const dur = audio.duration
+    if (isFinite(dur) && dur > 1) {
+      const start = Math.min(SEGMENT_START, Math.max(0, dur - 1))
+      if (audio.currentTime < start - 0.25) audio.currentTime = start
+    } else if (audio.currentTime < SEGMENT_START - 0.25) {
+      audio.currentTime = SEGMENT_START
+    }
+    await audio.play()
+    ensureAnalyser()
+  } catch {
+    // Autoplay blocked - will need user interaction
+  }
 }
 
 export function setTrack(url: string) {

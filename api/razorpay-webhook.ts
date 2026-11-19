@@ -34,26 +34,32 @@ async function sendTickets(orderId: string, customerName: string, customerEmail:
 
   const list = tickets.map((ticket, index) => `<li>Ticket ${index + 1}: <code>${ticket.qr_token}</code></li>`).join('')
   const from = process.env.TICKET_EMAIL_FROM || 'Orlem Christmas Ball <tickets@orlemchristmasball.in>'
-  const { error } = await new Resend(key).emails.send({
-    from,
-    to: customerEmail,
-    subject: 'Your Tickets — Orlem Christmas Ball 2026',
-    html: `<div style="font-family:Arial,sans-serif;color:#111;background:#fff;padding:24px">
-      <h2 style="margin:0 0 8px">Orlem Christmas Ball 2026</h2>
-      <p>Hi ${customerName}, your payment is confirmed.</p>
-      <p><strong>Date:</strong> 25 Dec 2026 · 7:30 PM onwards<br/><strong>Venue:</strong> St. Joseph School Turf Ground, Orlem, Malad</p>
-      <p>Present the attached QR codes at entry.</p>
-      <ul>${list}</ul>
-      <p style="color:#666;font-size:12px">Order ${razorpayOrderId}</p>
-    </div>`,
-    attachments,
-  })
+  try {
+    const { error, data } = await new Resend(key).emails.send({
+      from,
+      to: customerEmail,
+      subject: 'Your Tickets — Orlem Christmas Ball 2026',
+      html: `<div style="font-family:Arial,sans-serif;color:#111;background:#fff;padding:24px">
+        <h2 style="margin:0 0 8px">Orlem Christmas Ball 2026</h2>
+        <p>Hi ${customerName}, your payment is confirmed.</p>
+        <p><strong>Date:</strong> 25 Dec 2026 · 7:30 PM onwards<br/><strong>Venue:</strong> St. Joseph School Turf Ground, Orlem, Malad</p>
+        <p>Present the attached QR codes at entry.</p>
+        <ul>${list}</ul>
+        <p style="color:#666;font-size:12px">Order ${razorpayOrderId}</p>
+      </div>`,
+      attachments,
+    })
 
-  if (error) {
-    console.error('[razorpay-webhook] ticket email failed', { orderId, code: error.name || 'unknown' })
+    if (error) {
+      console.error('[razorpay-webhook] ticket email failed', { orderId, error: error.message, code: error.name || 'unknown' })
+      return false
+    }
+    console.log('[razorpay-webhook] ticket email sent', { orderId, emailId: data?.id })
+    return true
+  } catch (e: any) {
+    console.error('[razorpay-webhook] ticket email exception', { orderId, error: e?.message })
     return false
   }
-  return true
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
