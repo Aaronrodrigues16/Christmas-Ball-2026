@@ -48,6 +48,7 @@ export function getAudio(): HTMLAudioElement {
     if (!autoplayAttempted) {
       autoplayAttempted = true
       attemptAutoplay()
+      addInteractionListener()
     }
   })
 
@@ -72,9 +73,47 @@ async function attemptAutoplay() {
     }
     await audio.play()
     ensureAnalyser()
-  } catch {
+    console.log('[audio] Autoplay succeeded')
+  } catch (e) {
+    console.log('[audio] Autoplay blocked, waiting for user interaction:', e)
     // Autoplay blocked - will need user interaction
   }
+}
+
+// Global interaction listener to start audio on first user interaction
+let interactionListenerAdded = false
+function addInteractionListener() {
+  if (interactionListenerAdded || typeof window === 'undefined') return
+  interactionListenerAdded = true
+  const startOnInteraction = async () => {
+    if (audio && audio.paused && !bookingSuspend) {
+      try {
+        const dur = audio.duration
+        if (isFinite(dur) && dur > 1) {
+          const start = Math.min(SEGMENT_START, Math.max(0, dur - 1))
+          if (audio.currentTime < start - 0.25) audio.currentTime = start
+        } else if (audio.currentTime < SEGMENT_START - 0.25) {
+          audio.currentTime = SEGMENT_START
+        }
+        await audio.play()
+        ensureAnalyser()
+        console.log('[audio] Started on user interaction')
+      } catch (e) {
+        console.log('[audio] Interaction play failed:', e)
+      }
+    }
+    // Remove listeners after first successful play
+    if (!audio?.paused) {
+      window.removeEventListener('pointerdown', startOnInteraction)
+      window.removeEventListener('touchstart', startOnInteraction)
+      window.removeEventListener('keydown', startOnInteraction)
+      window.removeEventListener('click', startOnInteraction)
+    }
+  }
+  window.addEventListener('pointerdown', startOnInteraction, { passive: true })
+  window.addEventListener('touchstart', startOnInteraction, { passive: true })
+  window.addEventListener('keydown', startOnInteraction)
+  window.addEventListener('click', startOnInteraction)
 }
 
 export function setTrack(url: string) {
