@@ -2,7 +2,7 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import Scene from './components/Scene'
-import MusicPlayer from './components/ui/MusicPlayer'
+import { ensurePlaying, setTrack } from './audio'
 import TrailerOverlay from './components/ui/TrailerOverlay'
 import Countdown from './components/ui/Countdown'
 import Reveal from './components/ui/Reveal'
@@ -18,6 +18,11 @@ const VenueSection = lazy(() => import('./components/ui/VenueSection'))
 const ScannerPage = lazy(() => import('./components/ui/ScannerPage'))
 
 function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | null }) {
+  useEffect(() => {
+    // Start audio immediately on landing page mount
+    ensurePlaying()
+    setTrack('/src/assets/music/Black Santa Amapiano.mp3')
+  }, [])
   return (
     <div className="relative w-full min-h-screen bg-midnight-bg text-midnight-ivory">
       <ChristmasSnow />
@@ -67,7 +72,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
           <Reveal><footer className="section-shell py-10 px-6 text-center flex flex-col items-center"><div className="gold-rule max-w-xs w-full mx-auto mb-6 opacity-40" /><p className="font-display text-[10px] tracking-[0.32em] uppercase text-midnight-muted pl-[0.32em]">A PCPL Presentation ï¿½ OCB MMXXVI</p></footer></Reveal>
         </Suspense>
       </main>
-      <MusicPlayer />
+      {/* <MusicPlayer /> */}
     </div>
   )
 }
@@ -89,6 +94,7 @@ export default function App() {
   }
   return <Landing isMobile={isMobile} reduce={reduce} />
 }
+
 
 
 

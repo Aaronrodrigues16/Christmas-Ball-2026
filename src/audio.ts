@@ -125,7 +125,7 @@ export function pauseForBooking() {
 export function resumeAfterBooking() {
   bookingSuspend = false
   const a = getAudio()
-  if (a.paused && !isMuted()) {
+  if (a.paused) {
     void ensurePlaying()
   }
 }
@@ -216,14 +216,4 @@ export function getAudioBands(): AudioBands {
 
 export function getAudioLevel(): number {
   return getAudioBands().level
-}
-
-export function toggleMute(): boolean {
-  const a = getAudio()
-  a.muted = !a.muted
-  return a.muted
-}
-
-export function isMuted(): boolean {
-  return getAudio().muted
 }
