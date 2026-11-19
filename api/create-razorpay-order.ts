@@ -25,6 +25,13 @@ function describeGatewayError(err: any) {
   }
 }
 
+/** Safe to log/return: key IDs are public (the browser receives them anyway). */
+function maskedKeyId(id?: string) {
+  if (!id) return 'none'
+  if (id.length <= 12) return id
+  return `${id.slice(0, 11)}…${id.slice(-4)}`
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -103,7 +110,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   } catch (error: any) {
     const detail = describeGatewayError(error)
-    console.error('[create-razorpay-order] Razorpay rejected order creation', { orderId, ...detail })
+    const keyHint = maskedKeyId(keyId)
+    console.error('[create-razorpay-order] Razorpay rejected order creation', { orderId, keyHint, ...detail })
 
     // Surface the real gateway description so the cause is visible in the UI
     // immediately (e.g. bad amount, invalid currency, auth failure).
@@ -111,6 +119,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       error: detail.description,
       gateway_code: detail.code,
       gateway_field: detail.field,
+      key_hint: keyHint,
     })
   }
 }

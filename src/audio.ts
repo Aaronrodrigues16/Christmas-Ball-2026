@@ -4,10 +4,12 @@ let audio: HTMLAudioElement | null = null
 let ctx: AudioContext | null = null
 let analyser: AnalyserNode | null = null
 let source: MediaElementAudioSourceNode | null = null
+let lowpassFilter: BiquadFilterNode | null = null
 let dataArray: Uint8Array | null = null
 let timeArray: Uint8Array | null = null
 let currentUrl: string | null = null
 let bookingSuspend = false
+let userVolume = 0.35 // Lower default volume for "outside club" feel
 
 // Start near/after the drop and let the track continue (looping full track).
 // Adjust SEGMENT_START if you want the drop earlier/later in this specific track.
@@ -20,6 +22,7 @@ export function getAudio(): HTMLAudioElement {
   audio.preload = 'auto'
   audio.crossOrigin = 'anonymous'
   audio.loop = true
+  audio.volume = userVolume
   // No autoplay - browser policy requires user interaction first
   audio.setAttribute('playsinline', '')
   audio.setAttribute('webkit-playsinline', '')
@@ -102,6 +105,14 @@ export function pauseForBooking() {
   }
 }
 
+export function resumeAfterBooking() {
+  bookingSuspend = false
+  const a = getAudio()
+  if (a.paused && !isMuted()) {
+    void ensurePlaying()
+  }
+}
+
 export function isBookingSuspended(): boolean {
   return bookingSuspend
 }
@@ -115,6 +126,17 @@ export function setMuted(m: boolean) {
   getAudio().muted = m
 }
 
+export function setVolume(vol: number) {
+  userVolume = Math.max(0, Math.min(1, vol))
+  if (audio) {
+    audio.volume = userVolume
+  }
+}
+
+export function getVolume(): number {
+  return userVolume
+}
+
 export function ensureAnalyser() {
   if (analyser && dataArray) return
   const a = getAudio()
@@ -125,16 +147,39 @@ export function ensureAnalyser() {
     if (ctx.state === 'suspended') void ctx.resume().catch(() => {})
     if (!source) {
       source = ctx.createMediaElementSource(a)
+      
+      // Create low-pass filter for "outside club" muffled sound
+      lowpassFilter = ctx.createBiquadFilter()
+      lowpassFilter.type = 'lowpass'
+      lowpassFilter.frequency.value = 800 // Cutoff frequency - adjust for more/less muffling
+      lowpassFilter.Q.value = 1.0
+      
       analyser = ctx.createAnalyser()
       analyser.fftSize = 256
       analyser.smoothingTimeConstant = 0.75
-      source.connect(analyser)
+      
+      // Connect: source -> lowpass -> analyser -> destination
+      source.connect(lowpassFilter)
+      lowpassFilter.connect(analyser)
       analyser.connect(ctx.destination)
+      
       dataArray = new Uint8Array(analyser.frequencyBinCount)
       timeArray = new Uint8Array(analyser.fftSize)
     }
   } catch {
     // Web Audio may fail on some browsers; audio still plays without analysis
+  }
+}
+
+export function setOutsideClubEffect(enabled: boolean) {
+  if (lowpassFilter) {
+    lowpassFilter.frequency.value = enabled ? 800 : 20000 // 800Hz = muffled, 20kHz = normal
+  }
+}
+
+export function setLowpassFrequency(freq: number) {
+  if (lowpassFilter) {
+    lowpassFilter.frequency.value = Math.max(100, Math.min(20000, freq))
   }
 }
 

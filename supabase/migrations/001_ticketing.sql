@@ -18,7 +18,7 @@ create table if not exists public.orders (
   customer_phone text not null,
   dietary_pref text,
   total_amount integer not null check (total_amount >= 0),
-  cashfree_order_id text unique,
+  razorpay_order_id text unique,
   status text not null default 'PENDING' check (status in ('PENDING','PAID','FAILED','CANCELLED','EXPIRED')),
   created_at timestamptz not null default now(),
   paid_at timestamptz
@@ -46,7 +46,7 @@ create table if not exists public.app_settings (
   value text not null
 );
 
-create index if not exists idx_orders_cashfree_order_id on public.orders(cashfree_order_id);
+create index if not exists idx_orders_razorpay_order_id on public.orders(razorpay_order_id);
 create index if not exists idx_orders_status_created on public.orders(status, created_at);
 create index if not exists idx_tickets_qr_token on public.tickets(qr_token);
 create index if not exists idx_tickets_order_id on public.tickets(order_id);
@@ -223,3 +223,4 @@ grant execute on function public.release_expired_reservations() to anon, authent
 -- Optional seed (edit/remove in prod)
 -- insert into public.ticket_tiers (name, price_inr, total_quota) values ('Regular Ticket',1500,200),('Reduced Ticket',1000,50);
 -- insert into public.app_settings (key,value) values ('scanner_pin','YOUR_PIN') on conflict (key) do update set value=excluded.value;
+

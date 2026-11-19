@@ -15,7 +15,7 @@ React/Vite invitation site with serverless Razorpay ticketing (Supabase + Resend
 ### 1) Supabase
 
 1. Create a project and run `supabase/migrations/001_ticketing.sql` in the SQL editor.
-2. Run `supabase/migrations/002_payment_hardening.sql`. This renames `orders.cashfree_order_id` to `razorpay_order_id`, adds payment reconciliation fields and the webhook idempotency ledger, and adds the atomic fulfilment RPC.
+2. Run `supabase/migrations/002_payment_hardening.sql`. This adds payment reconciliation fields, the webhook idempotency ledger, and the atomic fulfilment RPC.
 3. Seed tiers and the scanner PIN:
 
    ```sql

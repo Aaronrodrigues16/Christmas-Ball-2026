@@ -2,20 +2,6 @@
 -- Apply this AFTER 001_ticketing.sql. Runs in Supabase SQL editor.
 -- It is safe to re-run.
 
--- 1) Drop the Cashfree-era column name. Existing Razorpay order IDs are preserved.
-do $$
-begin
-  if exists (
-    select 1 from information_schema.columns
-    where table_schema = 'public' and table_name = 'orders' and column_name = 'cashfree_order_id'
-  ) and not exists (
-    select 1 from information_schema.columns
-    where table_schema = 'public' and table_name = 'orders' and column_name = 'razorpay_order_id'
-  ) then
-    alter table public.orders rename column cashfree_order_id to razorpay_order_id;
-  end if;
-end $$;
-
 alter table public.orders
   add column if not exists razorpay_payment_id text unique,
   add column if not exists payment_amount_paise integer,
@@ -24,7 +10,6 @@ alter table public.orders
 
 update public.orders set status_token = encode(gen_random_bytes(24), 'hex') where status_token is null;
 
-drop index if exists idx_orders_cashfree_order_id;
 create index if not exists idx_orders_razorpay_order_id on public.orders(razorpay_order_id);
 create index if not exists idx_orders_status_token on public.orders(status_token);
 
@@ -175,3 +160,12 @@ $$;
 -- 5) Anon callers should not be able to expire other people's reservations.
 --    reserve_tickets calls it with definer rights, so normal checkout still works.
 revoke execute on function public.release_expired_reservations() from anon, authenticated;
+
+-- 6) The service role needs direct table access for the serverless API.
+--    Some Supabase projects (notably ones created with sb_secret_ API keys)
+--    do not get default grants on tables created by migrations. Without this,
+--    every .from() call in /api/* fails with 42501 "permission denied".
+grant usage on schema public to service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+grant execute on all functions in schema public to service_role;
