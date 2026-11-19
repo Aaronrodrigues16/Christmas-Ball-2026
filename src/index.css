@@ -1,0 +1,259 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #050505;
+  --bg-2: #0b0b0b;
+  --fg: #f2ebdd;
+  --text-muted: #aaa69c;
+  --gold: #c6ad78;
+  --gold-muted: #8e8062;
+  --border: rgba(198, 173, 120, 0.25);
+}
+
+/* Festive viewport border */
+.festive-viewport-border {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border: 1px solid rgba(198, 173, 120, 0.15);
+  box-shadow:
+    inset 0 0 100px rgba(198, 173, 120, 0.05),
+    0 0 200px rgba(198, 173, 120, 0.02);
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+body {
+  font-family: 'Outfit', 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::selection {
+  background: rgba(198, 173, 120, 0.28);
+  color: #fffaf0;
+}
+
+:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.font-display { font-family: 'Outfit', 'Montserrat', sans-serif; }
+.font-editorial { font-family: 'Cormorant Garamond', serif; }
+
+.hero-fade-top,
+.hero-fade-bottom {
+  position: absolute;
+  left: 0; right: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+.hero-fade-top {
+  top: 0; height: 28vh;
+  background: linear-gradient(to bottom, rgba(5,5,5,0.7), rgba(5,5,5,0));
+}
+.hero-fade-bottom {
+  bottom: 0; height: 40vh;
+  background: linear-gradient(to top, rgba(5,5,5,0.95), rgba(5,5,5,0));
+}
+
+.film-grain {
+  position: absolute;
+  inset: -20%;
+  z-index: 7;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+.section-shell {
+  position: relative;
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(122, 26, 16, 0.18), transparent 55%),
+    radial-gradient(circle at 15% 20%, rgba(198,173,120,0.06), transparent 25%),
+    radial-gradient(circle at 85% 70%, rgba(198,173,120,0.05), transparent 28%),
+    var(--bg);
+  /* border-top removed for seamless scrolling */
+}
+.section-shell::before {
+  content: '✦  Orlem Christmas Ball 2026  ✦';
+  position: absolute;
+  top: 0.65rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-left: 0.32em;
+  font-family: 'Outfit', 'Montserrat', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(198, 173, 120, 0.28);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(198,173,120,0.5), transparent);
+}
+
+.input-gold {
+  width: 100%;
+  background: rgba(11,11,11,0.6);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 0.8rem 0.95rem;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+.input-gold::placeholder { color: rgba(170,166,156,0.55); }
+.input-gold:hover { border-color: rgba(198,173,120,0.4); }
+.input-gold:focus {
+  border-color: rgba(198,173,120,0.7);
+  box-shadow: 0 0 0 1px rgba(198,173,120,0.15);
+  background: rgba(11,11,11,0.85);
+  outline: none;
+}
+
+.btn-gold {
+  border: 1px solid rgba(198,173,120,0.55);
+  color: var(--fg);
+  background: rgba(11,11,11,0.35);
+  transition: all 0.35s ease;
+}
+.btn-gold:hover {
+  border-color: rgba(198,173,120,0.9);
+  background: rgba(198,173,120,0.08);
+  box-shadow: 0 0 30px rgba(198,173,120,0.08);
+}
+.btn-gold[aria-pressed="true"] {
+  border-color: rgba(198,173,120,0.95);
+  background: rgba(198,173,120,0.12);
+  color: #fffaf0;
+}
+
+/* Pretix embedded widget - Orlem Christmas Ball theme overrides */
+.ocb-pretix-modal-body {
+  background: linear-gradient(180deg, rgba(11,11,11,0.98), rgba(5,5,5,1));
+}
+.ocb-pretix-modal-body .pretix-widget,
+.ocb-pretix-modal-body .pretix-widget * {
+  font-family: 'Outfit', 'Montserrat', sans-serif !important;
+}
+.ocb-pretix-modal-body .pretix-widget {
+  --pretix-brand-primary: #c6ad78;
+  --pretix-brand-primary-text: #050505;
+  border: 1px solid rgba(198, 173, 120, 0.18) !important;
+  background: rgba(11,11,11,0.65) !important;
+  color: #f2ebdd !important;
+}
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-action,
+.ocb-pretix-modal-body .pretix-widget button,
+.ocb-pretix-modal-body .pretix-widget .btn,
+.ocb-pretix-modal-body .pretix-widget input[type="submit"],
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-primary-color {
+  background: rgba(198,173,120,0.12) !important;
+  border: 1px solid rgba(198,173,120,0.55) !important;
+  color: #f2ebdd !important;
+  border-radius: 0 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.18em !important;
+  font-size: 11px !important;
+  box-shadow: none !important;
+}
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-action:hover,
+.ocb-pretix-modal-body .pretix-widget button:hover,
+.ocb-pretix-modal-body .pretix-widget .btn:hover,
+.ocb-pretix-modal-body .pretix-widget input[type="submit"]:hover {
+  background: rgba(198,173,120,0.22) !important;
+  border-color: rgba(198,173,120,0.9) !important;
+  color: #fffaf0 !important;
+}
+.ocb-pretix-modal-body .pretix-widget input,
+.ocb-pretix-modal-body .pretix-widget select,
+.ocb-pretix-modal-body .pretix-widget textarea {
+  background: rgba(5,5,5,0.7) !important;
+  border: 1px solid rgba(198,173,120,0.25) !important;
+  color: #f2ebdd !important;
+  border-radius: 0 !important;
+}
+.ocb-pretix-modal-body .pretix-widget input:focus,
+.ocb-pretix-modal-body .pretix-widget select:focus,
+.ocb-pretix-modal-body .pretix-widget textarea:focus {
+  border-color: rgba(198,173,120,0.7) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px rgba(198,173,120,0.15) !important;
+}
+.ocb-pretix-modal-body .pretix-widget a {
+  color: #c6ad78 !important;
+}
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-category,
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-item,
+.ocb-pretix-modal-body .pretix-widget table,
+.ocb-pretix-modal-body .pretix-widget tr,
+.ocb-pretix-modal-body .pretix-widget td,
+.ocb-pretix-modal-body .pretix-widget th {
+  border-color: rgba(198,173,120,0.15) !important;
+  color: #f2ebdd !important;
+  background: transparent !important;
+}
+.ocb-pretix-modal-body .pretix-widget h2,
+.ocb-pretix-modal-body .pretix-widget h3,
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-event-name {
+  font-family: 'Cormorant Garamond', serif !important;
+  color: #f2ebdd !important;
+  font-style: italic;
+  font-weight: 500;
+}
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-price,
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-availability-available {
+  color: #c6ad78 !important;
+}
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-alert,
+.ocb-pretix-modal-body .pretix-widget .pretix-widget-error-message {
+  background: rgba(120, 40, 30, 0.25) !important;
+  border: 1px solid rgba(198, 120, 100, 0.35) !important;
+  color: #f2ebdd !important;
+}
+.ocb-pretix-modal-body .pretix-widget-frame-holder iframe {
+  background: #0b0b0b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
