@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react'
+﻿import { useMemo, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Environment } from '@react-three/drei'
 import * as THREE from 'three'
@@ -120,7 +120,7 @@ export default function HeroBall({ isMobile }: { isMobile: boolean }) {
     const t = state.clock.getElapsedTime()
     if (dancer.current) {
       // Slow, elegant rotation
-      dancer.current.rotation.y += dt * 0.18
+      dancer.current.rotation.y += dt * 0.45
     }
     const shimmer = 0.5 + 0.5 * Math.sin(t * 0.6)
     if (coreMat.current) {
@@ -185,3 +185,5 @@ export default function HeroBall({ isMobile }: { isMobile: boolean }) {
     </group>
   )
 }
+
+

@@ -30,7 +30,7 @@ type Props = { open: boolean; onClose: () => void }
 type PaidTicket = { qr_token: string; tier?: string; dataUrl?: string }
 const PHONE_RE = /^(\+91[\-\s]?|0)?[6-9]\d{9}$/
 
-async function pollPaid(statusToken: string, tries = 24, delayMs = 2500) {
+async function pollPaid(statusToken: string, tries = 60, delayMs = 1000) {
   for (let i = 0; i < tries; i++) {
     try {
       const r = await fetch("/api/order-status", {
@@ -178,6 +178,16 @@ export default function CheckoutModal({ open, onClose }: Props) {
         resumeAfterBooking()
       })
       rzp.open()
+
+      // Background polling for ticket data (don't block UI)
+      pollPaid(data.status_token).then(polled => {
+        if (polled.status === "PAID" && polled.tickets?.length > 0) {
+          const tickets: PaidTicket[] = polled.tickets.map((t: PaidTicket) => ({
+            ...t,
+          }))
+          setConfirmed(prev => prev ? { ...prev, tickets } : null)
+        }
+      })
     } catch (err: any) { setStatus("error"); setError(err?.message || "Something went wrong"); resumeAfterBooking() }
   }
 
