@@ -55,7 +55,7 @@ export function startBackgroundAudio(url: string) {
   // Start at 70 seconds (1:10) on every load/refresh.
   const reset = () => {
     try {
-      if (el.currentTime !== 70) el.currentTime = 70
+      if (el.currentTime !== 60) el.currentTime = 60
     } catch {
       // Metadata not available yet; a fresh element already starts at 0.
     }
@@ -172,6 +172,17 @@ export function getAudioBands(): AudioBands {
     return { level: 0, bass: 0, mid: 0, high: 0, beat: 0 }
   }
 }
+
+export function stopBackgroundAudio() {
+  const el = audio
+  if (el) {
+    try { el.pause() } catch { /* ignore */ }
+  }
+  if (ctx && ctx.state !== 'closed') {
+    try { ctx.suspend() } catch { /* ignore */ }
+  }
+}
+
 
 export function getAudioLevel(): number {
   return getAudioBands().level

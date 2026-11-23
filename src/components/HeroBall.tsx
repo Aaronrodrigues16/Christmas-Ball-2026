@@ -4,9 +4,9 @@ import { Environment } from '@react-three/drei'
 import * as THREE from 'three'
 import { ensureAnalyser, getAudioBands } from '../audio'
 
-function createDiscoTexture() {
-  const size = 1024
-  const tiles = 38
+function createDiscoTexture(isMobile: boolean) {
+  const size = isMobile ? 512 : 1024
+  const tiles = isMobile ? 24 : 38
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
@@ -48,7 +48,7 @@ function createDiscoTexture() {
   texture.wrapS = THREE.RepeatWrapping
   texture.wrapT = THREE.RepeatWrapping
   texture.repeat.set(10, 7)
-  texture.anisotropy = 12
+  texture.anisotropy = isMobile ? 4 : 12
   texture.colorSpace = THREE.SRGBColorSpace
   texture.needsUpdate = true
   return texture
@@ -114,7 +114,7 @@ export default function HeroBall({ isMobile }: { isMobile: boolean }) {
   const coreMat = useRef<THREE.MeshPhysicalMaterial>(null!)
   const shellMat = useRef<THREE.MeshPhysicalMaterial>(null!)
   const capMat = useRef<THREE.MeshStandardMaterial>(null!)
-  const discoMap = useMemo(() => createDiscoTexture(), [])
+  const discoMap = useMemo(() => createDiscoTexture(isMobile), [isMobile])
 
   useFrame((state, dt) => {
     const t = state.clock.getElapsedTime()
@@ -135,15 +135,15 @@ export default function HeroBall({ isMobile }: { isMobile: boolean }) {
     if (capMat.current) capMat.current.emissiveIntensity = 0.12 + shimmer * 0.08
   })
 
-  const scale = isMobile ? 2.05 : 2.4
-  const y = isMobile ? 1.55 : 1.35
+  const scale = isMobile ? 1.6 : 2.4
+  const y = isMobile ? 1.2 : 1.35
 
   return (
     <group position={[0, y, 0]} scale={scale}>
-      <Environment preset="city" />
+      {!isMobile && <Environment preset="city" />}
       <group ref={dancer}>
         <mesh>
-          <icosahedronGeometry args={[1.5, 5]} />
+          <icosahedronGeometry args={[1.5, 3]} />
           <meshPhysicalMaterial
             ref={coreMat}
             map={discoMap}
@@ -158,7 +158,7 @@ export default function HeroBall({ isMobile }: { isMobile: boolean }) {
           />
         </mesh>
         <mesh>
-          <sphereGeometry args={[1.53, 64, 64]} />
+          <sphereGeometry args={[1.53, 32, 32]} />
           <meshPhysicalMaterial
             ref={shellMat}
             transmission={0.02}
@@ -172,7 +172,7 @@ export default function HeroBall({ isMobile }: { isMobile: boolean }) {
             envMapIntensity={0.6}
           />
         </mesh>
-        <LightRays />
+        {!isMobile && <LightRays />}
         <mesh position={[0, 1.58, 0]}>
           <cylinderGeometry args={[0.1, 0.18, 0.12, 24]} />
           <meshStandardMaterial ref={capMat} color="#8e8062" metalness={1} roughness={0.28} emissive="#c6ad78" emissiveIntensity={0.12} />

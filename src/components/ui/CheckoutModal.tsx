@@ -10,7 +10,7 @@ declare global {
 }
 
 import QRCode from "qrcode"
-import { supabase } from "../../lib/supabase"
+import { stopBackgroundAudio } from "../../audio"
 
 async function loadScript(src: string): Promise<boolean> {
   return new Promise((resolve) => {
@@ -49,6 +49,9 @@ async function pollPaid(statusToken: string, tries = 60, delayMs = 1000) {
 }
 
 export default function CheckoutModal({ open, onClose }: Props) {
+  useEffect(() => {
+    if (open) stopBackgroundAudio()
+  }, [open])
   const [tiers, setTiers] = useState<Tier[]>([])
   const [tiersLoading, setTiersLoading] = useState(false)
   const [tiersError, setTiersError] = useState<string | null>(null)

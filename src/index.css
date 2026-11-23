@@ -55,6 +55,8 @@ body {
   overflow-x: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(122,26,16,0.18), transparent 60%), radial-gradient(circle at 15% 20%, rgba(198,173,120,0.06), transparent 30%), radial-gradient(circle at 85% 70%, rgba(198,173,120,0.05), transparent 35%), var(--bg);
+  background-attachment: fixed;
 }
 
 ::selection {
@@ -98,28 +100,9 @@ body {
 
 .section-shell {
   position: relative;
-  background:
-    radial-gradient(ellipse at 50% -10%, rgba(122, 26, 16, 0.18), transparent 55%),
-    radial-gradient(circle at 15% 20%, rgba(198,173,120,0.06), transparent 25%),
-    radial-gradient(circle at 85% 70%, rgba(198,173,120,0.05), transparent 28%),
-    var(--bg);
-  /* border-top removed for seamless scrolling */
+  background: transparent;
 }
-.section-shell::before {
-  content: '✦  Orlem Christmas Ball 2026  ✦';
-  position: absolute;
-  top: 0.65rem;
-  left: 50%;
-  transform: translateX(-50%);
-  padding-left: 0.32em;
-  font-family: 'Outfit', 'Montserrat', sans-serif;
-  font-size: 9px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: rgba(198, 173, 120, 0.28);
-  pointer-events: none;
-  white-space: nowrap;
-}
+.section-shell::before { display: none; content: none; }
 
 .gold-rule {
   height: 1px;

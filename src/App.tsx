@@ -42,11 +42,11 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
             transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <Canvas
-              dpr={isMobile ? [1, 1.3] : [1, 1.5]}
+              dpr={isMobile ? [1, 1] : [1, 1.5]}
               camera={{ position: [0, 0.25, 7.6], fov: isMobile ? 48 : 42 }}
-              gl={{ antialias: !isMobile, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: false }}
+              gl={{ antialias: !isMobile, alpha: true, powerPreference: isMobile ? 'low-power' : 'high-performance', preserveDrawingBuffer: false }}
               frameloop="always"
-              performance={{ min: 0.5, max: isMobile ? 0.8 : 1.0 }}
+              performance={{ min: isMobile ? 0.3 : 0.5, max: isMobile ? 0.6 : 1.0 }}
             >
               <Suspense fallback={null}>
                 <Scene isMobile={isMobile} />

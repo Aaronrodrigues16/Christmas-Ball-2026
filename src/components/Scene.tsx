@@ -24,14 +24,16 @@ export default function Scene({ isMobile }: { isMobile: boolean }) {
       <ChristmasArt />
 
       {/* restrained atmospheric particles - reduced for performance */}
-      <Sparkles count={isMobile ? 40 : 80} scale={[14, 10, 10]} size={isMobile ? 1.4 : 1.8} speed={0.18} opacity={0.22} color="#f2ebdd" />
-      <Sparkles count={isMobile ? 16 : 32} scale={[10, 8, 8]} size={1.2} speed={0.12} opacity={0.18} color="#c6ad78" />
+      <Sparkles count={isMobile ? 12 : 80} scale={[14, 10, 10]} size={isMobile ? 1.4 : 1.8} speed={0.18} opacity={0.22} color="#f2ebdd" />
+      <Sparkles count={isMobile ? 4 : 32} scale={[10, 8, 8]} size={1.2} speed={0.12} opacity={0.18} color="#c6ad78" />
 
+      {!isMobile && (
       <EffectComposer multisampling={0}>
         <Bloom luminanceThreshold={0.82} luminanceSmoothing={0.22} intensity={isMobile ? 0.22 : 0.32} mipmapBlur />
         <Vignette eskil={false} offset={0.2} darkness={0.9} />
         <Noise premultiply opacity={0.03} />
       </EffectComposer>
+    )}
     </>
   )
 }
