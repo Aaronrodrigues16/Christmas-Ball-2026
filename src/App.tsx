@@ -13,8 +13,6 @@ const EventDetails = lazy(() => import('./components/ui/EventDetails'))
 const HeadlinerSection = lazy(() => import('./components/ui/HeadlinerSection'))
 const TicketSection = lazy(() => import('./components/ui/TicketSection'))
 const FaqSection = lazy(() => import('./components/ui/FaqSection'))
-const GalleryTeaser = lazy(() => import('./components/ui/GalleryTeaser'))
-const RsvpSection = lazy(() => import('./components/ui/RsvpSection'))
 const VenueSection = lazy(() => import('./components/ui/VenueSection'))
 const ScannerPage = lazy(() => import('./components/ui/ScannerPage'))
 
@@ -66,8 +64,6 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
           <Reveal><HeadlinerSection /></Reveal>
           <Reveal><TicketSection /></Reveal>
           <Reveal><FaqSection /></Reveal>
-          <Reveal><GalleryTeaser /></Reveal>
-          <Reveal><RsvpSection /></Reveal>
           <Reveal><VenueSection /></Reveal>
           <Reveal><footer className="section-shell py-10 px-6 text-center flex flex-col items-center"><div className="gold-rule max-w-xs w-full mx-auto mb-6 opacity-40" /><p className="font-display text-[10px] tracking-[0.32em] uppercase text-midnight-muted pl-[0.32em]">A PCPL Presentation ï¿½ OCB MMXXVI</p></footer></Reveal>
         </Suspense>
