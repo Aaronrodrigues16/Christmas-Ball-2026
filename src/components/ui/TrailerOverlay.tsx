@@ -46,7 +46,7 @@ export default function TrailerOverlay() {
         transition={{ duration: 1.6, ease }}
       >
         <p className={`${navText} text-left`}>A PCPL PRESENTATION</p>
-        <p className={`${navText} text-center text-midnight-gold/80 pl-[0.28em] md:pl-[0.38em]`}>OCB MMXXVI</p>
+        <p className={`${navText} text-center text-midnight-gold/80 pl-[0.28em] md:pl-[0.38em]`}>         <p className={`${navText} text-center text-midnight-gold/80 pl-[0.28em] md:pl-[0.38em]`}></p></p>
         <p className={`${navText} text-right`}>CHRISTMAS 2026</p>
       </motion.div>
 

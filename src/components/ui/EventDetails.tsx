@@ -22,7 +22,7 @@ export default function EventDetails() {
             <p>Dress Code: Christmas Glam 💃🏻 🕺🏻</p>
             <p>Limited invites, so register now for preferred seating/tables for the happiest, classiest and most spectacular event of the year 🤗 #spreadthelove ❤️</p>
             <p>Pls click 👇🏽 Link to register: <a href="https://forms.gle/hrSPScD68tKGCFCR9" target="_blank" rel="noopener noreferrer" className="text-midnight-gold underline">Click here to register</a></p>
-            <p>For details please contact: The Happy Hea… {/* TODO: confirm full contact name — source truncated */}</p>
+            <p>For details please contact: The Happy Hearts — 9136978151, 9821934217, 9930604295</p>
           </div>
           <div className="mt-10 md:mt-12 flex items-center justify-center">
             <button type="button" onClick={() => setCheckoutOpen(true)} className="btn-gold inline-flex items-center justify-center px-10 py-3.5 font-display text-[10px] md:text-[11px] tracking-[0.32em] uppercase text-center pl-[calc(2.5rem+0.32em)] pr-10">Book Tickets</button>
