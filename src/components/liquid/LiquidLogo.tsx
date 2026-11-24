@@ -26,7 +26,7 @@ export default function LiquidLogo({ className = '' }: { className?: string }) {
       aria-hidden="true"
       className={`liquid-logo pointer-events-none select-none ${className}`}
     >
-      <span className="liquid-logo-text">OCB MMXXVI</span>
+      <span className="liquid-logo-text"></span>
     </div>
   )
 }
