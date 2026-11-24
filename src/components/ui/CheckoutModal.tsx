@@ -11,6 +11,7 @@ declare global {
 
 import QRCode from "qrcode"
 import { stopBackgroundAudio } from "../../audio"
+import { supabase } from "../../lib/supabase"
 
 async function loadScript(src: string): Promise<boolean> {
   return new Promise((resolve) => {
@@ -25,7 +26,7 @@ async function loadScript(src: string): Promise<boolean> {
 }
 
 type Tier = { id: string; name: string; price_inr: number; total_quota: number; sold_count: number }
-type Props = { open: boolean; onClose: () => void }
+type Props = { open: boolean; onClose: () => void; selectedSeats?: string[] }
 type PaidTicket = { qr_token: string; tier?: string; dataUrl?: string }
 const PHONE_RE = /^(\+91[\-\s]?|0)?[6-9]\d{9}$/
 
@@ -48,7 +49,7 @@ async function pollPaid(statusToken: string, tries = 60, delayMs = 1000) {
   return { status: "PENDING", tickets: [], total_amount: 0 }
 }
 
-export default function CheckoutModal({ open, onClose }: Props) {
+export default function CheckoutModal({ open, onClose, selectedSeats = [] }: Props) {
   useEffect(() => {
     if (open) stopBackgroundAudio()
   }, [open])
@@ -114,6 +115,7 @@ export default function CheckoutModal({ open, onClose }: Props) {
           customer_phone: form.phone.trim(),
           dietary_pref: form.dietary.trim() || null,
           items: payloadItems,
+          seat_ids: selectedSeats,
         }) })
       } catch {
         throw new Error("Cannot reach /api/create-razorpay-order. Run with `npx vercel dev` (not `npm run dev`) so API routes work, and configure server env vars.")
@@ -271,6 +273,11 @@ export default function CheckoutModal({ open, onClose }: Props) {
                 <label className="block"><span className="block font-display text-[10px] tracking-[0.24em] uppercase text-midnight-muted mb-1">Phone (+91) *</span><input className="input-gold" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+91 9876543210" required autoComplete="tel" /></label>
                 <label className="block"><span className="block font-display text-[10px] tracking-[0.24em] uppercase text-midnight-muted mb-1">Dietary Preference</span><input className="input-gold" value={form.dietary} onChange={e => setForm(f => ({ ...f, dietary: e.target.value }))} placeholder="Veg / Non-veg / allergies (optional)" /></label>
               </div>
+              {selectedSeats.length > 0 && (
+                <p className="font-display text-[10px] tracking-[0.12em] uppercase text-midnight-goldMuted">
+                  Selected seats: {selectedSeats.join(', ')}
+                </p>
+              )}
               {error && <p className="text-[12px] text-[#d8b4a6]" role="alert">{error}</p>}
               <button type="submit" disabled={status === "loading" || status === "paying" || status === "confirming"} className="btn-gold w-full py-3.5 font-display text-[10px] tracking-[0.32em] uppercase disabled:opacity-50">
                 {status === "loading" ? "Creating order…" : status === "paying" ? "Completing payment…" : status === "confirming" ? "Confirming booking…" : "Pay Securely"}

@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CheckoutModal from './CheckoutModal'
+
+const SEAT_STORAGE_KEY = 'selectedSeatIds'
 
 const TIERS = [
   { id: 'kids', name: 'Kids Below 3', tag: 'Free Entry', desc: 'Complimentary entry for children under 3 years.', points: ['Official event entry', 'Instant QR code ticket via email'], requiresSeat: false },
@@ -9,6 +11,16 @@ const TIERS = [
 
 export default function TicketSection() {
   const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [selectedSeats, setSelectedSeats] = useState<string[]>([])
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem(SEAT_STORAGE_KEY)
+    if (!stored) return
+    setSelectedSeats(stored.split(',').filter(Boolean))
+    setCheckoutOpen(true)
+    sessionStorage.removeItem(SEAT_STORAGE_KEY)
+  }, [])
+
   return (
     <>
       <section id="tickets" className="section-shell py-20 md:py-28 px-6 scroll-mt-20">
@@ -38,7 +50,14 @@ export default function TicketSection() {
           </div>
         </div>
       </section>
-      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
+      <CheckoutModal
+        open={checkoutOpen}
+        selectedSeats={selectedSeats}
+        onClose={() => {
+          setCheckoutOpen(false)
+          setSelectedSeats([])
+        }}
+      />
     </>
   )
 }
