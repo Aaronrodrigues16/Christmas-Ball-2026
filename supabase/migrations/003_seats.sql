@@ -32,4 +32,6 @@ begin
   return jsonb_build_object('reserved', (select coalesce(jsonb_agg(id), '[]'::jsonb) from public.seats where id = any(p_seat_ids) and status='reserved'),
                             'conflicts', to_jsonb(v_conflicts));
 end; $$;
-grant execute on function public.reserve_seats(uuid[], int) to anon, authenticated;
+grant execute on function public.reserve_seats(uuid[], int) to anon, authenticated, service_role;
+-- service_role bypasses RLS but still needs table-level privileges.
+grant select on public.seats to service_role;
