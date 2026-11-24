@@ -16,6 +16,7 @@ const TicketSection = lazy(() => import('./components/ui/TicketSection'))
 const FaqSection = lazy(() => import('./components/ui/FaqSection'))
 const VenueSection = lazy(() => import('./components/ui/VenueSection'))
 const ScannerPage = lazy(() => import('./components/ui/ScannerPage'))
+const SeatSelection = lazy(() => import('./components/ui/SeatSelection'))
 
 function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | null }) {
   useEffect(() => {
@@ -88,6 +89,9 @@ export default function App() {
 
   if (isScanner) {
     return <Suspense fallback={<div className="min-h-screen bg-midnight-bg" />}><ScannerPage /></Suspense>
+  }
+  if (typeof window !== 'undefined' && window.location.pathname.replace(/\/$/, '') === '/seats') {
+    return <Suspense fallback={<div className="min-h-screen bg-midnight-bg" />}><SeatSelection onBack={() => { window.location.href = '/' }} /></Suspense>
   }
   return <Landing isMobile={isMobile} reduce={reduce} />
 }

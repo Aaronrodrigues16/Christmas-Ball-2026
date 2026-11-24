@@ -25,6 +25,7 @@ export default function TicketSection() {
                 <div className="gold-rule w-full my-5 opacity-30" />
                 <ul className="space-y-2 mb-6 inline-flex flex-col items-start text-left mx-auto">{tier.points.map((p) => (<li key={p} className="flex items-start gap-2 body-copy text-midnight-ivory/85"><span className="mt-[5px] h-1.5 w-1.5 rounded-full bg-midnight-gold/70 shrink-0" aria-hidden="true" /><span>{p}</span></li>))}</ul>
                 <button type="button" onClick={() => setCheckoutOpen(true)} className="btn-gold mt-auto inline-flex items-center justify-center px-8 py-3.5 font-display text-[10px] md:text-[11px] tracking-[0.3em] uppercase pl-[calc(2rem+0.3em)] pr-8">Select &amp; Checkout</button>
+                <button type="button" onClick={() => { window.location.href = '/seats' }} className="btn-gold mt-3 inline-flex items-center justify-center px-8 py-3.5 font-display text-[10px] md:text-[11px] tracking-[0.3em] uppercase">Choose Seats</button>
               </div>
             ))}
           </div>
