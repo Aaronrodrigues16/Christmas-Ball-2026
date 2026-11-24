@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import CheckoutModal from './CheckoutModal'
-
-const SEAT_STORAGE_KEY = 'selectedSeatIds'
+import { readDraft } from '../../lib/checkoutState'
 
 const TIERS = [
   { id: 'kids', name: 'Kids Below 3', tag: 'Free Entry', desc: 'Complimentary entry for children under 3 years.', points: ['Official event entry', 'Instant QR code ticket via email'], requiresSeat: false },
@@ -11,14 +10,10 @@ const TIERS = [
 
 export default function TicketSection() {
   const [checkoutOpen, setCheckoutOpen] = useState(false)
-  const [selectedSeats, setSelectedSeats] = useState<string[]>([])
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(SEAT_STORAGE_KEY)
-    if (!stored) return
-    setSelectedSeats(stored.split(',').filter(Boolean))
-    setCheckoutOpen(true)
-    sessionStorage.removeItem(SEAT_STORAGE_KEY)
+    const draft = readDraft()
+    if (draft) setCheckoutOpen(true)
   }, [])
 
   return (
@@ -37,27 +32,20 @@ export default function TicketSection() {
                 <div className="gold-rule w-full my-5 opacity-30" />
                 <ul className="space-y-2 mb-6 inline-flex flex-col items-start text-left mx-auto">{tier.points.map((p) => (<li key={p} className="flex items-start gap-2 body-copy text-midnight-ivory/85"><span className="mt-[5px] h-1.5 w-1.5 rounded-full bg-midnight-gold/70 shrink-0" aria-hidden="true" /><span>{p}</span></li>))}</ul>
                 {tier.requiresSeat ? (
-                  <button type="button" onClick={() => { sessionStorage.setItem('selectedTier', tier.id); window.location.href = '/seats' }} className="btn-gold mt-auto inline-flex items-center justify-center px-8 py-3.5 font-display text-[10px] md:text-[11px] tracking-[0.3em] uppercase">Choose Seats</button>
+                  <button type="button" onClick={() => setCheckoutOpen(true)} className="btn-gold mt-auto inline-flex items-center justify-center px-8 py-3.5 font-display text-[10px] md:text-[11px] tracking-[0.3em] uppercase">Select Passes</button>
                 ) : (
                   <div aria-hidden="true" className="h-[52px]" />
                 )}
               </div>
             ))}
           </div>
-          <div className="mt-8 md:mt-10 max-w-2xl mx-auto border border-midnight-gold/15 bg-midnight-bg2/20 px-6 py-6 md:px-8 md:py-7 text-center">
+          <div className="mt-8 md:mt-10 max-w-2xl mx-auto border border-midnight-gold/15 bg-midnight-bg2/20 px-6 py-6 md:py-8 md:py-7 text-center">
             <p className="eyebrow">Instant digital delivery</p>
             <p className="mt-2 body-copy normal-case">After successful payment, ticket emailed instantly with unique <span className="text-midnight-gold">QR code</span> for fast venue entry. Stock reserved atomically to prevent overselling.</p>
           </div>
         </div>
       </section>
-      <CheckoutModal
-        open={checkoutOpen}
-        selectedSeats={selectedSeats}
-        onClose={() => {
-          setCheckoutOpen(false)
-          setSelectedSeats([])
-        }}
-      />
+      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
     </>
   )
 }
