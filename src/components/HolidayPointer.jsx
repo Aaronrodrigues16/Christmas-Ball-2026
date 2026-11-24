@@ -9,42 +9,55 @@ export default function HolidayPointer() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    const coarse = window.matchMedia('(pointer: coarse)').matches
     if (reduced) return
-    let follower = null
-    let raf = 0
-    let tx = 0, ty = 0, cx = 0, cy = 0
-    let active = true
+    const coarse = window.matchMedia('(pointer: coarse)').matches
+    const trailCount = coarse ? 8 : 14
     const bursts = []
-    const cap = fine ? 4 : 2
-    const flakeCount = fine ? 6 : 4
+    const cap = coarse ? 2 : 4
+    const flakeCount = coarse ? 4 : 6
 
-    if (fine) {
-      follower = document.createElement('div')
-      follower.className = 'holiday-pointer'
-      follower.setAttribute('aria-hidden','true')
-      follower.innerHTML = '✦<span class="hp-dot"></span><span class="hp-dot"></span>'
-      document.body.appendChild(follower)
-      const move = (e) => {
-        tx = e.clientX; ty = e.clientY
-        if (!raf) raf = requestAnimationFrame(loop)
-      }
-      const loop = () => {
-        raf = 0
-        cx += (tx - cx) * 0.22
-        cy += (ty - cy) * 0.22
-        if (follower) follower.style.transform = `translate3d(${cx}px,${cy}px,0) translate(-50%,-50%)`
-        if (Math.hypot(tx-cx, ty-cy) > 0.5) raf = requestAnimationFrame(loop)
-      }
-      window.addEventListener('pointermove', move, { passive: true })
-      // store for cleanup
-      follower._cleanup = () => window.removeEventListener('pointermove', move)
+    // Snow trail (visible desktop + mobile)
+    const container = document.createElement('div')
+    container.className = 'snow-trail'
+    container.setAttribute('aria-hidden','true')
+    const flakes = []
+    for (let i=0;i<trailCount;i++){
+      const s = document.createElement('span')
+      s.className = 'snow-trail-flake'
+      s.textContent = '❄'
+      s.style.opacity = String(1 - i/trailCount * 0.85)
+      s.style.fontSize = (16 - i*0.6) + 'px'
+      container.appendChild(s)
+      flakes.push({ el: s })
     }
+    document.body.appendChild(container)
 
+    const positions = flakes.map(()=>({x:-100,y:-100}))
+    let tx = -100, ty = -100
+    let raf = 0
+    const loop = () => {
+      raf = 0
+      positions[0].x += (tx - positions[0].x) * 0.35
+      positions[0].y += (ty - positions[0].y) * 0.35
+      for (let i=1;i<positions.length;i++){
+        positions[i].x += (positions[i-1].x - positions[i].x) * 0.28
+        positions[i].y += (positions[i-1].y - positions[i].y) * 0.28
+      }
+      flakes.forEach((f,i)=>{
+        f.el.style.transform = `translate3d(${positions[i].x}px,${positions[i].y}px,0) translate(-50%,-50%)`
+      })
+      const dist = Math.hypot(tx-positions[positions.length-1].x, ty-positions[positions.length-1].y)
+      if (dist > 0.5) raf = requestAnimationFrame(loop)
+    }
+    const move = (e) => {
+      tx = e.clientX; ty = e.clientY
+      if (!raf) raf = requestAnimationFrame(loop)
+    }
+    window.addEventListener('pointermove', move, { passive: true })
+    window.addEventListener('pointerdown', (e) => { tx = e.clientX; ty = e.clientY; if(!raf) raf=requestAnimationFrame(loop) }, { passive: true })
+
+    // Burst
     const burst = (x, y) => {
-      if (reduced) return
-      // cap
       while (bursts.length >= cap) { const old = bursts.shift(); if (old && old.parentNode) old.parentNode.removeChild(old) }
       const wrap = document.createElement('div')
       wrap.className = 'holiday-burst'
@@ -68,7 +81,6 @@ export default function HolidayPointer() {
       wrap.addEventListener('animationend', remove, { once: true })
       setTimeout(remove, 700)
     }
-
     const down = (e) => {
       let x = e.clientX, y = e.clientY
       const el = (e.target && e.target.closest) ? e.target.closest('a,button,summary') : null
@@ -78,11 +90,10 @@ export default function HolidayPointer() {
     window.addEventListener('pointerdown', down, { passive: true })
 
     return () => {
-      active = false
       if (raf) cancelAnimationFrame(raf)
+      window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerdown', down)
-      if (follower && follower._cleanup) follower._cleanup()
-      if (follower && follower.parentNode) follower.parentNode.removeChild(follower)
+      if (container.parentNode) container.parentNode.removeChild(container)
       bursts.forEach(b => b.parentNode && b.parentNode.removeChild(b))
     }
   }, [])
