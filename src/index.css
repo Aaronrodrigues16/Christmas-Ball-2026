@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+.eyebrow {
+  @apply font-display text-[10px] md:text-[11px] uppercase tracking-[0.38em] text-midnight-goldMuted pl-[0.38em];
+}
+.section-title {
+  @apply font-editorial italic text-3xl md:text-5xl text-midnight-ivory;
+}
+.card-label {
+  @apply font-display text-[10px] uppercase tracking-[0.32em] text-midnight-gold;
+}
+.body-copy {
+  @apply font-display text-[11px] md:text-xs normal-case tracking-[0.06em] leading-relaxed text-midnight-muted;
+}
+
+.knights-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%);
+}
+@media (max-width: 767px) {
+  .knights-mask {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  }
+}
+
 :root {
   --bg: #050505;
   --bg-2: #0b0b0b;

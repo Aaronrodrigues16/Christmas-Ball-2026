@@ -1,4 +1,4 @@
-ï»¿import { Canvas } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import Scene from './components/Scene'
@@ -59,7 +59,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
         </section>
 
         <Suspense fallback={null}>
-          <Reveal><section id="countdown" className="section-shell relative py-20 md:py-28 px-6"><div className="max-w-5xl mx-auto text-center flex flex-col items-center"><p className="font-display text-[10px] md:text-[11px] tracking-[0.38em] uppercase text-midnight-goldMuted mb-4 pl-[0.38em]">Countdown to Midnight</p><h2 className="font-editorial italic text-3xl md:text-5xl text-midnight-ivory mb-4">Orlem Christmas Ball 2026</h2><p className="font-display text-[11px] md:text-xs tracking-[0.2em] uppercase text-midnight-muted mb-10 md:mb-14 pl-[0.2em] max-w-3xl">25 December 2026 â€” 7:30 PM onwards â€” St. Joseph School Turf Ground, Orlem, Malad</p><Countdown /></div></section></Reveal>
+          <Reveal><section id="countdown" className="section-shell relative py-20 md:py-28 px-6"><div className="max-w-5xl mx-auto text-center flex flex-col items-center"><p className="font-display text-[10px] md:text-[11px] tracking-[0.38em] uppercase text-midnight-goldMuted mb-4 pl-[0.38em]">Countdown to the Ball</p><h2 className="font-editorial italic text-3xl md:text-5xl text-midnight-ivory mb-4">Orlem Christmas Ball 2026</h2><p className="font-display text-[11px] md:text-xs tracking-[0.2em] uppercase text-midnight-muted mb-10 md:mb-14 pl-[0.2em] max-w-3xl">25 December 2026 — 7:30 PM onwards — St. Joseph School Turf Ground, Orlem, Malad</p><Countdown /></div></section></Reveal>
           <Reveal><EventDetails /></Reveal>
           <Reveal><HeadlinerSection /></Reveal>
           <Reveal><TicketSection /></Reveal>

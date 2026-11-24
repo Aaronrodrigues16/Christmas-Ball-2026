@@ -12,7 +12,7 @@ export default function HeadlinerSection() {
 
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-stretch">
           <div className="relative border border-midnight-gold/20 bg-midnight-bg2/30 overflow-hidden min-h-[320px] md:min-h-[420px]">
-            <img src={knightsImg} alt="The Knights – Entertainers" className="w-full h-full object-cover" style={{ filter: 'grayscale(0.15) contrast(1.05)' }} />
+            <img src={knightsImg} alt="The Knights – Entertainers" className="w-full h-full object-cover object-center scale-[1.04]" loading="lazy" decoding="async" style={{ filter: 'grayscale(1) sepia(0.55) saturate(1.35) hue-rotate(350deg) brightness(0.78) contrast(1.12)', WebkitMaskImage: 'linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%)', maskImage: 'linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%)' }} />
             <div className="absolute inset-0 bg-gradient-to-t from-midnight-bg via-transparent to-transparent opacity-70" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-midnight-bg/40" />
             <div className="absolute inset-3 border border-midnight-gold/15 pointer-events-none" />
