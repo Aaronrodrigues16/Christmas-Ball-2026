@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Razorpay from 'razorpay'
+import { loadSeatMap, resolveSeatIds } from './_lib/seatIds'
+
 import { getSupabaseAdmin } from './_lib/supabaseAdmin'
 
 const keyId = process.env.RAZORPAY_KEY_ID?.trim()
