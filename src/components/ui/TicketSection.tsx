@@ -2,8 +2,9 @@
 import CheckoutModal from './CheckoutModal'
 
 const TIERS = [
-  { name: 'Regular Ticket', tag: 'Standard Entry', desc: 'Full access to Orlem Christmas Ball 2026 — live headliner, dance floor, and festive celebration.', points: ['Official event entry', 'Instant QR code ticket via email', 'Secure Razorpay checkout'] },
-  { name: 'Reduced Ticket', tag: 'Concession Entry', desc: 'Discounted tier (as configured in Supabase), same seamless digital ticketing.', points: ['Official event entry', 'Instant QR code ticket via email', 'Subject to availability'] },
+  { name: 'Kids Below 3', tag: 'Free Entry', desc: 'Complimentary entry for children under 3 years.', points: ['Official event entry', 'Instant QR code ticket via email'] },
+  { name: 'Children Below 10', tag: '@ Rs 1000', desc: 'Discounted pass for children below 10 years.', points: ['Official event entry', 'Instant QR code ticket via email'] },
+  { name: 'Per Person Adult', tag: '@ Rs 3500', desc: 'Standard adult pass for Orlem Christmas Ball 2026.', points: ['Official event entry', 'Instant QR code ticket via email', 'Secure Razorpay checkout'] },
 ]
 
 export default function TicketSection() {
@@ -15,8 +16,8 @@ export default function TicketSection() {
           <p className="font-display text-[10px] md:text-[11px] tracking-[0.38em] uppercase text-midnight-goldMuted mb-4 pl-[0.38em]">Tickets</p>
           <h2 className="font-editorial italic text-3xl md:text-5xl text-midnight-ivory mb-6">Reserve Your Pass</h2>
           <p className="font-display text-xs md:text-sm tracking-[0.12em] uppercase text-midnight-muted max-w-2xl mx-auto leading-relaxed">Choose passes in our on-brand checkout — no redirect, powered by Razorpay & Supabase.</p>
-          <div className="mt-8 flex justify-center"><button type="button" onClick={() => setCheckoutOpen(true)} className="btn-gold inline-flex items-center justify-center px-10 py-4 font-display text-[10px] md:text-[11px] tracking-[0.32em] uppercase pl-[calc(2.5rem+0.32em)] pr-10">Open Checkout</button></div>
-          <div className="mt-10 md:mt-14 grid md:grid-cols-2 gap-5 md:gap-6 max-w-5xl mx-auto">
+          <div className="mt-8 flex justify-center"><a href="https://forms.gle/hrSPScD68tKGCFCR9" target="_blank" rel="noopener noreferrer" className="btn-gold inline-flex items-center justify-center px-10 py-4 font-display text-[10px] md:text-[11px] tracking-[0.32em] uppercase pl-[calc(2.5rem+0.32em)] pr-10">Reserve Pass</a></div>
+          <div className="mt-10 md:mt-14 grid md:grid-cols-3 gap-5 md:gap-6 max-w-5xl mx-auto">
             {TIERS.map((tier) => (
               <div key={tier.name} className="border border-midnight-gold/20 bg-midnight-bg2/30 p-6 md:p-8 flex flex-col items-center text-center">
                 <p className="font-display text-[10px] tracking-[0.32em] uppercase text-midnight-goldMuted pl-[0.32em]">{tier.tag}</p>
