@@ -6,55 +6,56 @@ export default function EventDetails() {
   return (
     <>
       <section id="details" className="section-shell py-20 md:py-28 px-6">
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <p className="font-display text-[10px] md:text-[11px] tracking-[0.38em] uppercase text-midnight-goldMuted mb-4 pl-[0.38em]">The Evening</p>
-          <h2 className="font-editorial italic text-3xl md:text-5xl text-midnight-ivory mb-6">Event Details</h2>
+          <h2 className="font-editorial italic text-4xl md:text-6xl text-midnight-ivory mb-10">Event Details</h2>
 
-          <div className="gold-rule max-w-xs mx-auto mb-8 opacity-40" />
-          <p className="font-display text-sm md:text-base leading-relaxed text-midnight-ivory/90 max-w-3xl mx-auto">
+          <div className="gold-rule max-w-xs mx-auto mb-10 opacity-40" />
+          <p className="font-display text-base md:text-lg max-w-3xl mx-auto" style={{ lineHeight: 1.8 }}>
             As a 12-year legacy reaches new heights, we look forward to you joining the community's historic 'Orlem Christmas Ball' 🎄. Presented by the market's newest powerhouse, 'PCPL' 🏘️.
           </p>
-          <div className="gold-rule max-w-xs mx-auto mt-8 opacity-40" />
+          <div className="gold-rule max-w-xs mx-auto mt-10 opacity-40" />
 
-          <div className="mt-10 inline-block border border-midnight-gold/40 bg-midnight-gold/10 px-6 py-4">
-            <p className="font-display text-xs md:text-sm tracking-[0.1em] uppercase text-midnight-gold">NOTE: It's BYOB & Howw — Yess!!! You read that right.</p>
-          </div>
+          <p className="mt-12 font-editorial italic text-xl md:text-2xl text-midnight-gold" style={{ textShadow: '0 0 20px rgba(212,175,55,0.4)' }}>
+            NOTE: It's BYOB & Howw — Yess!!! You read that right.
+          </p>
 
-          <div className="mt-12 grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          <ul className="mt-14 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-3xl mx-auto text-left">
             {['Entry & Seating','🍤 Unlimited Appetizers','🍱 BUFFET Dinner','🍨 Dessert','🧊 Water & Soft Drinks','⛳ Kids Zone & Secret Santa 🎅🏻 🎁'].map((item) => (
-              <div key={item} className="border border-midnight-gold/20 bg-midnight-bg2/30 px-4 py-3 text-center font-display text-[11px] md:text-xs tracking-[0.1em] uppercase text-midnight-ivory/90">{item}</div>
+              <li key={item} className="flex items-start gap-3 font-display text-base text-midnight-ivory/90" style={{ lineHeight: 1.6 }}>
+                <span className="text-midnight-gold text-xl leading-none">✓</span>
+                <span>{item}</span>
+              </li>
             ))}
+          </ul>
+
+          <div className="mt-16 grid md:grid-cols-2 gap-12 max-w-3xl mx-auto text-center">
+            <div>
+              <h3 className="font-editorial italic text-2xl md:text-3xl text-midnight-ivory mb-4">Entertainment 💃🏻 🕺🏻</h3>
+              <p className="font-display text-base text-midnight-ivory/90" style={{ lineHeight: 1.8 }}>
+                International Sensation — "KNIGHTS – The Entertainers"<br/>
+                DJ — "Craig" 🎧<br/>
+                Host — Ricky Sebastian 🎤
+              </p>
+            </div>
+            <div>
+              <h3 className="font-editorial italic text-2xl md:text-3xl text-midnight-ivory mb-4">Dress Code</h3>
+              <p className="font-display text-base text-midnight-ivory/90" style={{ lineHeight: 1.8 }}>Christmas Glam 💃🏻 🕺🏻</p>
+            </div>
           </div>
 
-          <div className="mt-12 grid md:grid-cols-2 gap-6 max-w-3xl mx-auto text-left">
-            <div className="border border-midnight-gold/15 bg-midnight-bg2/20 p-6">
-              <p className="font-display text-[10px] tracking-[0.32em] uppercase text-midnight-gold mb-3">Entertainment 💃🏻 🕺🏻</p>
-              <ul className="space-y-2 font-display text-xs tracking-[0.08em] uppercase text-midnight-ivory/90">
-                <li>International Sensation — "KNIGHTS – The Entertainers"</li>
-                <li>DJ — "Craig" 🎧</li>
-                <li>Host — Ricky Sebastian 🎤</li>
-              </ul>
-            </div>
-            <div className="border border-midnight-gold/15 bg-midnight-bg2/20 p-6">
-              <p className="font-display text-[10px] tracking-[0.32em] uppercase text-midnight-gold mb-3">Dress Code</p>
-              <p className="font-display text-xs tracking-[0.08em] uppercase text-midnight-ivory/90">Christmas Glam 💃🏻 🕺🏻</p>
-            </div>
-          </div>
-
-          <p className="mt-12 font-display text-sm md:text-base leading-relaxed text-midnight-ivory/90 max-w-3xl mx-auto">
+          <p className="mt-16 font-display text-base md:text-lg max-w-3xl mx-auto" style={{ lineHeight: 1.8 }}>
             Limited invites, so register now for preferred seating/tables for the happiest, classiest and most spectacular event of the year 🤗 #spreadthelove ❤️
           </p>
-          <div className="mt-8 flex items-center justify-center">
-            <a href="https://forms.gle/hrSPScD68tKGCFCR9" target="_blank" rel="noopener noreferrer" className="btn-gold inline-flex items-center justify-center px-10 py-3.5 font-display text-[10px] md:text-[11px] tracking-[0.32em] uppercase text-center pl-[calc(2.5rem+0.32em)] pr-10">Book Tickets</a>
+          <div className="mt-10 flex items-center justify-center">
+            <a href="https://forms.gle/hrSPScD68tKGCFCR9" target="_blank" rel="noopener noreferrer" className="btn-gold inline-flex items-center justify-center px-12 py-4 font-display text-sm md:text-base tracking-[0.2em] uppercase text-center pl-[calc(3rem+0.2em)] pr-12" style={{ background: '#D4AF37', color: '#050505', boxShadow: '0 0 30px rgba(212,175,55,0.5)' }}>Book Tickets</a>
           </div>
 
-          <div className="mt-12 text-center">
-            <p className="font-display text-[10px] tracking-[0.28em] uppercase text-midnight-goldMuted mb-2">For details please contact: The Happy Hearts</p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <a href="tel:9136978151" className="font-display text-xs tracking-[0.1em] text-midnight-ivory/90 hover:text-midnight-gold">9136978151</a>
-              <a href="tel:9821934217" className="font-display text-xs tracking-[0.1em] text-midnight-ivory/90 hover:text-midnight-gold">9821934217</a>
-              <a href="tel:9930604295" className="font-display text-xs tracking-[0.1em] text-midnight-ivory/90 hover:text-midnight-gold">9930604295</a>
-            </div>
+          <div className="mt-16 text-center">
+            <p className="font-editorial italic text-lg text-midnight-gold mb-3">For details please contact: The Happy Hearts</p>
+            <p className="font-display text-base text-midnight-ivory/90">
+              <a href="tel:9136978151" className="hover:text-midnight-gold">9136978151</a> | <a href="tel:9821934217" className="hover:text-midnight-gold">9821934217</a> | <a href="tel:9930604295" className="hover:text-midnight-gold">9930604295</a>
+            </p>
           </div>
         </div>
       </section>
