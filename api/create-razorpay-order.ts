@@ -43,22 +43,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Never trust a client-supplied amount. Price is always recomputed by reserve_tickets.
-  const { customer_name, customer_email, customer_phone, dietary_pref, items } = req.body || {}
+  const { customer_name, customer_email, customer_phone, dietary_pref, items, seat_ids } = req.body || {}
 
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'items required' })
   }
 
+  const requestedSeats: string[] = Array.isArray(seat_ids) ? seat_ids.filter((s: any) => typeof s === 'string') : []
+
   let orderId: string | undefined
 
   try {
     const supabase = getSupabaseAdmin()
+
+    // Resolve public seat IDs (T01-A) to DB UUIDs
+    let dbSeatIds: string[] = []
+    if (requestedSeats.length > 0) {
+      const seatMap = await loadSeatMap()
+      const resolved = resolveSeatIds(requestedSeats, seatMap)
+      if (!resolved) {
+        return res.status(400).json({ error: 'Unknown seat id' })
+      }
+      dbSeatIds = resolved
+    }
+
     const { data: reserved, error: reservationError } = await supabase.rpc('reserve_tickets', {
       p_name: customer_name,
       p_email: customer_email,
       p_phone: customer_phone,
       p_dietary: dietary_pref || null,
       p_items: items,
+      p_seat_ids: dbSeatIds,
     })
 
     if (reservationError || !reserved) {
@@ -68,6 +83,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     orderId = reserved.order_id as string
     const totalAmount = Number(reserved.total_amount || 0)
     const statusToken = reserved.status_token as string | undefined
+
+    // Free order (Kids only): skip Razorpay, return success directly
+    if (totalAmount === 0) {
+      return res.status(200).json({ order_id: orderId, amount: 0, currency: 'INR', status_token: statusToken, free: true })
+    }
 
     // Razorpay requires amount in paise as a JSON integer, minimum 100 (INR 1).
     const amountPaise = Math.round(totalAmount * 100)
