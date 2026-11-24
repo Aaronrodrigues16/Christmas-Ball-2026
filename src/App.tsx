@@ -8,7 +8,6 @@ import musicTrack from './assets/music/Black Santa Amapiano.mp3'
 import Countdown from './components/ui/Countdown'
 import Reveal from './components/ui/Reveal'
 import ChristmasSnow from './components/ui/ChristmasSnow'
-import HolidayPointer from './components/HolidayPointer'
 
 const EventDetails = lazy(() => import('./components/ui/EventDetails'))
 const HeadlinerSection = lazy(() => import('./components/ui/HeadlinerSection'))
@@ -27,7 +26,6 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
   return (
     <div className="relative w-full min-h-screen bg-midnight-bg text-midnight-ivory">
       <ChristmasSnow />
-      <HolidayPointer />
       <main>
         <section id="hero" className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-midnight-bg">
           <div className="absolute inset-0 z-0" aria-hidden="true">
@@ -45,7 +43,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
           >
             <Canvas
               dpr={isMobile ? 1 : [1, 1.5]}
-              camera={{ position: isMobile ? [0, 0.25, 8.2] : [0, 0.25, 7.6], fov: isMobile ? 50 : 42 }}
+              camera={{ position: isMobile ? [0, 0.25, 8.8] : [0, 0.25, 7.6], fov: isMobile ? 50 : 42 }}
               gl={{ antialias: !isMobile, alpha: true, powerPreference: isMobile ? 'low-power' : 'high-performance', preserveDrawingBuffer: false }}
               frameloop="always"
               performance={{ min: isMobile ? 0.3 : 0.5, max: isMobile ? 0.6 : 1.0 }}
