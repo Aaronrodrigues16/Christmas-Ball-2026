@@ -1,18 +1,29 @@
 import { useCallback, useEffect, useState } from 'react'
 import SeatMap from './SeatMap'
 import { readDraft, readSeatIds, writeSeatIds } from '../../lib/checkoutState'
+import { startPayment } from '../../lib/payment'
+import type { CheckoutDraft } from '../../lib/checkoutState'
 
 type SeatsResponse = { seats?: Array<{ id: string; status?: string }> }
 type Availability = 'loading' | 'ready' | 'unavailable'
 
 export default function SeatsPage() {
+  const [draft] = useState<CheckoutDraft | null>(() => readDraft())
   const [takenIds, setTakenIds] = useState<ReadonlySet<string>>(new Set())
-  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set())
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set(readSeatIds()))
   const [availability, setAvailability] = useState<Availability>('loading')
   const [zoom, setZoom] = useState(1)
+  const [error, setError] = useState<string | null>(null)
+  const [paying, setPaying] = useState(false)
 
-  const draft = readDraft()
   const requiredSeatCount = draft?.requiredSeatCount ?? 0
+  const isLocalSimulation = import.meta.env.DEV && import.meta.env.VITE_SIMULATE_PAYMENT !== 'false'
+
+  useEffect(() => {
+    if (!draft || requiredSeatCount === 0) {
+      window.location.replace('/#tickets')
+    }
+  }, [draft, requiredSeatCount])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -31,9 +42,9 @@ export default function SeatsPage() {
         setTakenIds(taken)
         setAvailability('ready')
       })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') return
-        console.error('[seats] availability unavailable', error)
+      .catch((fetchError: unknown) => {
+        if (fetchError instanceof DOMException && fetchError.name === 'AbortError') return
+        console.error('[seats] availability unavailable', fetchError)
         setTakenIds(new Set())
         setAvailability('unavailable')
       })
@@ -41,35 +52,65 @@ export default function SeatsPage() {
   }, [])
 
   useEffect(() => {
-    const ids = readSeatIds()
-    if (ids.length > 0) setSelectedIds(new Set(ids))
-  }, [])
-
-  const toggleSeat = useCallback((id: string) => {
-    setSelectedIds((previous) => {
-      if (takenIds.has(id)) return previous
-      const next = new Set(previous)
-      if (next.has(id)) next.delete(id)
-      else if (next.size < requiredSeatCount) next.add(id)
-      return next
-    })
-  }, [takenIds, requiredSeatCount])
-
-  const goBack = () => { window.location.href = '/#tickets' }
-
-  const reserveAndCheckout = () => {
-    if (selectedIds.size !== requiredSeatCount) return
-    writeSeatIds([...selectedIds])
-    window.location.href = '/#tickets'
-  }
+    const stored = readSeatIds().slice(0, requiredSeatCount || 0)
+    setSelectedIds(new Set(stored))
+  }, [draft, requiredSeatCount])
 
   useEffect(() => {
-    if (requiredSeatCount === 0 && draft) {
-      window.location.href = '/#tickets'
-    }
-  }, [requiredSeatCount, draft])
+    if (takenIds.size === 0) return
+    setSelectedIds((previous) => {
+      const available = [...previous].filter((id) => !takenIds.has(id))
+      return available.length === previous.size ? previous : new Set(available)
+    })
+  }, [takenIds])
 
-  const canConfirm = requiredSeatCount === 0 || selectedIds.size === requiredSeatCount
+  useEffect(() => {
+    writeSeatIds([...selectedIds])
+  }, [selectedIds])
+
+  const toggleSeat = useCallback((id: string) => {
+    setError(null)
+    if (takenIds.has(id)) return
+
+    if (selectedIds.has(id)) {
+      const next = new Set(selectedIds)
+      next.delete(id)
+      setSelectedIds(next)
+      return
+    }
+
+    if (selectedIds.size >= requiredSeatCount) {
+      setError(`You can select only ${requiredSeatCount} seat${requiredSeatCount === 1 ? '' : 's'} for this order.`)
+      return
+    }
+
+    setSelectedIds(new Set([...selectedIds, id]))
+  }, [requiredSeatCount, selectedIds, takenIds])
+
+  const goBack = () => {
+    window.location.assign('/#tickets')
+  }
+
+  const proceedToPayment = async () => {
+    if (!draft) {
+      setError('Your ticket details are missing. Please choose your tickets again.')
+      return
+    }
+    if (selectedIds.size !== requiredSeatCount) {
+      setError(`Select exactly ${requiredSeatCount} seat${requiredSeatCount === 1 ? '' : 's'} to continue.`)
+      return
+    }
+
+    setPaying(true)
+    setError(null)
+    const message = await startPayment({ draft, selectedSeats: [...selectedIds] })
+    if (message) {
+      setError(message)
+      setPaying(false)
+    }
+  }
+
+  const canProceed = Boolean(draft) && requiredSeatCount > 0 && selectedIds.size === requiredSeatCount && !paying
 
   return (
     <div className="min-h-screen bg-midnight-bg p-4 text-midnight-ivory">
@@ -78,9 +119,9 @@ export default function SeatsPage() {
           <button type="button" onClick={goBack} className="btn-gold px-4 py-2 text-xs">Back</button>
           <h1 className="font-editorial text-2xl italic">Select Your Seats</h1>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setZoom((v) => Math.max(0.6, +(v - 0.1).toFixed(2)))} className="btn-gold px-2 py-1 text-xs" aria-label="Zoom out">-</button>
+            <button type="button" onClick={() => setZoom((value) => Math.max(0.6, +(value - 0.1).toFixed(2)))} className="btn-gold px-2 py-1 text-xs" aria-label="Zoom out">-</button>
             <span className="text-xs">{Math.round(zoom * 100)}%</span>
-            <button type="button" onClick={() => setZoom((v) => Math.min(1.4, +(v + 0.1).toFixed(2)))} className="btn-gold px-2 py-1 text-xs" aria-label="Zoom in">+</button>
+            <button type="button" onClick={() => setZoom((value) => Math.min(1.4, +(value + 0.1).toFixed(2)))} className="btn-gold px-2 py-1 text-xs" aria-label="Zoom in">+</button>
           </div>
         </div>
 
@@ -99,17 +140,26 @@ export default function SeatsPage() {
 
         <SeatMap takenIds={takenIds} selectedIds={selectedIds} onToggle={toggleSeat} zoom={zoom} />
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+        <div className="mt-6 flex flex-col items-center justify-center gap-3">
           <button
             type="button"
-            disabled={!canConfirm}
-            onClick={reserveAndCheckout}
+            disabled={!canProceed}
+            onClick={proceedToPayment}
             className="btn-gold px-8 py-3 text-xs uppercase tracking-widest disabled:opacity-40"
           >
-            Reserve &amp; Checkout
+            {paying ? 'Starting payment…' : 'Proceed to Payment'}
           </button>
-          {!canConfirm && requiredSeatCount > 0 && (
-            <p className="text-[11px] text-midnight-muted">Select exactly {requiredSeatCount} seat{requiredSeatCount > 1 ? 's' : ''} to continue.</p>
+
+          {!canProceed && requiredSeatCount > 0 && (
+            <p className="text-center text-[11px] text-midnight-muted" role="alert">
+              Select exactly {requiredSeatCount} seat{requiredSeatCount === 1 ? '' : 's'} to continue.
+            </p>
+          )}
+          {error && <p className="text-center text-[12px] text-[#d8b4a6]" role="alert">{error}</p>}
+          {isLocalSimulation && (
+            <p className="text-center font-display text-[9px] uppercase tracking-[0.14em] text-midnight-muted/70">
+              Local demo mode: payment will be simulated
+            </p>
           )}
         </div>
       </div>

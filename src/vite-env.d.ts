@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_PRETIX_BASE_URL?: string
   readonly VITE_PRETIX_ADMIN_URL?: string
   readonly VITE_BOOKING_URL?: string
+  readonly VITE_SIMULATE_PAYMENT?: string
 }
 
 interface ImportMeta {

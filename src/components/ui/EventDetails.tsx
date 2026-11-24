@@ -1,11 +1,6 @@
-import { useState } from 'react'
-import CheckoutModal from './CheckoutModal'
-
 export default function EventDetails() {
-  const [checkoutOpen, setCheckoutOpen] = useState(false)
   const inclusions = ['Entry & Seating', 'Unlimited Appetizers', 'Buffet Dinner', 'Dessert', 'Water & Soft Drinks', 'Kids Zone & Secret Santa']
   return (
-    <>
       <section id="details" className="section-shell py-20 md:py-28 px-6">
         <div className="max-w-5xl mx-auto text-center">
           <p className="eyebrow">The Evening</p>
@@ -48,7 +43,5 @@ export default function EventDetails() {
           </div>
         </div>
       </section>
-      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
-    </>
   )
 }

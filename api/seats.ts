@@ -1,22 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { getSupabaseAdmin } from './_lib/supabaseAdmin'
-
-type SeatRow = {
-  id: string
-  section: 'left' | 'right'
-  row_no: number
-  col_no: number
-  status: string
-}
-
-function publicSeatId(row: Pick<SeatRow, 'section' | 'row_no' | 'col_no'>): string {
-  const table = row.section === 'left' ? row.row_no : row.row_no + 50
-  const label = String.fromCharCode(64 + row.col_no) // A..H
-  return `T${String(table).padStart(2, '0')}-${label}`
-}
-
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+import { loadSeatEntries, loadSeatMap, resolveSeatIds } from './_lib/seatIds'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   let supabase
@@ -28,22 +12,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'GET') {
     try {
-      const { data, error } = await supabase
-        .from('seats')
-        .select('id, section, row_no, col_no, status')
-
-      if (error) throw error
-
-      const seats = ((data ?? []) as SeatRow[]).map((row) => ({
-        id: publicSeatId(row),
-        status: row.status === 'available' ? 'available' : 'taken',
+      const entries = await loadSeatEntries()
+      const seats = entries.map((entry) => ({
+        id: entry.publicId,
+        status: entry.status === 'available' ? 'available' : 'taken',
       }))
 
       res.setHeader('Cache-Control', 'no-store')
       return res.status(200).json({ seats })
     } catch (error) {
       console.error('[api/seats] GET failed', error)
-      // Never leak the raw Postgres error to the browser.
       return res.status(500).json({ error: 'Seat availability temporarily unavailable' })
     }
   }
@@ -54,23 +32,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!Array.isArray(requested) || !requested.every((id) => typeof id === 'string') || requested.length === 0) {
       return res.status(400).json({ error: 'seat_ids required' })
     }
-    const seatIds = requested as string[]
 
     try {
-      const { data: rows, error: lookupError } = await supabase
-        .from('seats')
-        .select('id, section, row_no, col_no')
-      if (lookupError) throw lookupError
-
-      const uuidByPublicId = new Map<string, string>()
-      for (const row of (rows ?? []) as Array<Pick<SeatRow, 'id' | 'section' | 'row_no' | 'col_no'>>) {
-        uuidByPublicId.set(publicSeatId(row), row.id)
-      }
-
-      const dbIds = seatIds.map((id) => uuidByPublicId.get(id) ?? (UUID_RE.test(id) ? id : null))
-      if (dbIds.some((id) => id === null)) {
-        return res.status(400).json({ error: 'Unknown seat id' })
-      }
+      const seatMap = await loadSeatMap()
+      const dbIds = resolveSeatIds(requested as string[], seatMap)
+      if (!dbIds) return res.status(400).json({ error: 'Unknown seat id' })
 
       const { data, error } = await supabase.rpc('reserve_seats', {
         p_seat_ids: dbIds,

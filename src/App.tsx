@@ -17,6 +17,7 @@ const FaqSection = lazy(() => import('./components/ui/FaqSection'))
 const VenueSection = lazy(() => import('./components/ui/VenueSection'))
 const ScannerPage = lazy(() => import('./components/ui/ScannerPage'))
 const SeatsPage = lazy(() => import('./components/ui/SeatsPage'))
+const SuccessPage = lazy(() => import('./components/ui/SuccessPage'))
 
 function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | null }) {
   useEffect(() => {
@@ -78,7 +79,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
 export default function App() {
   const [isMobile, setIsMobile] = useState(false)
   const reduce = useReducedMotion()
-  const isScanner = typeof window !== 'undefined' && window.location.pathname.replace(/\/$/, '') === '/scanner'
+  const path = typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))
@@ -87,11 +88,14 @@ export default function App() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  if (isScanner) {
+  if (path === '/scanner') {
     return <Suspense fallback={<div className="min-h-screen bg-midnight-bg" />}><ScannerPage /></Suspense>
   }
-  if (typeof window !== 'undefined' && window.location.pathname.replace(/\/$/, '') === '/seats') {
+  if (path === '/seats') {
     return <Suspense fallback={<div className="min-h-screen bg-midnight-bg" />}><SeatsPage /></Suspense>
+  }
+  if (path === '/success') {
+    return <Suspense fallback={<div className="min-h-screen bg-midnight-bg" />}><SuccessPage /></Suspense>
   }
   return <Landing isMobile={isMobile} reduce={reduce} />
 }
