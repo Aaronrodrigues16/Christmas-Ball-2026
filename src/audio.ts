@@ -55,7 +55,7 @@ export function startBackgroundAudio(url: string) {
   // Start at 70 seconds (1:10) on every load/refresh.
   const reset = () => {
     try {
-      if (el.currentTime !== 60) el.currentTime = 60
+      if (el.currentTime !== 70) el.currentTime = 70
     } catch {
       // Metadata not available yet; a fresh element already starts at 0.
     }
