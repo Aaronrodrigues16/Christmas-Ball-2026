@@ -135,8 +135,8 @@ export default function HeroBall({ isMobile }: { isMobile: boolean }) {
     if (capMat.current) capMat.current.emissiveIntensity = 0.12 + shimmer * 0.08
   })
 
-  const scale = 2.4
-  const y = 1.35
+  const scale = isMobile ? 1.35 : 2.4
+  const y = isMobile ? 1.05 : 1.35
 
   return (
     <group position={[0, y, 0]} scale={scale}>

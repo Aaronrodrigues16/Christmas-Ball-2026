@@ -8,6 +8,7 @@ import musicTrack from './assets/music/Black Santa Amapiano.mp3'
 import Countdown from './components/ui/Countdown'
 import Reveal from './components/ui/Reveal'
 import ChristmasSnow from './components/ui/ChristmasSnow'
+import HolidayPointer from './components/HolidayPointer'
 
 const EventDetails = lazy(() => import('./components/ui/EventDetails'))
 const HeadlinerSection = lazy(() => import('./components/ui/HeadlinerSection'))
@@ -24,6 +25,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
   return (
     <div className="relative w-full min-h-screen bg-midnight-bg text-midnight-ivory">
       <ChristmasSnow />
+      <HolidayPointer />
       <main>
         <section id="hero" className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-midnight-bg">
           <div className="absolute inset-0 z-0" aria-hidden="true">
@@ -40,8 +42,8 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
             transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <Canvas
-              dpr={isMobile ? [1, 1] : [1, 1.5]}
-              camera={{ position: [0, 0.25, 7.6], fov: isMobile ? 48 : 42 }}
+              dpr={isMobile ? 1 : [1, 1.5]}
+              camera={{ position: isMobile ? [0, 0.25, 8.2] : [0, 0.25, 7.6], fov: isMobile ? 50 : 42 }}
               gl={{ antialias: !isMobile, alpha: true, powerPreference: isMobile ? 'low-power' : 'high-performance', preserveDrawingBuffer: false }}
               frameloop="always"
               performance={{ min: isMobile ? 0.3 : 0.5, max: isMobile ? 0.6 : 1.0 }}
@@ -51,7 +53,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
               </Suspense>
             </Canvas>
           </motion.div>
-          <div className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.15)_45%,rgba(0,0,0,0.78)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.15)_45%,rgba(0,0,0,0.78)_100%)] mobile-vignette" />
           <div className="hero-fade-top" />
           <div className="hero-fade-bottom" />
           <div className="film-grain" />
@@ -59,7 +61,7 @@ function Landing({ isMobile, reduce }: { isMobile: boolean; reduce: boolean | nu
         </section>
 
         <Suspense fallback={null}>
-          <Reveal><section id="countdown" className="section-shell relative py-20 md:py-28 px-6"><div className="max-w-5xl mx-auto text-center flex flex-col items-center"><p className="font-display text-[10px] md:text-[11px] tracking-[0.38em] uppercase text-midnight-goldMuted mb-4 pl-[0.38em]">Countdown to the Ball</p><h2 className="font-editorial italic text-3xl md:text-5xl text-midnight-ivory mb-4">Orlem Christmas Ball 2026</h2><p className="font-display text-[11px] md:text-xs tracking-[0.2em] uppercase text-midnight-muted mb-10 md:mb-14 pl-[0.2em] max-w-3xl">25 December 2026 — 7:30 PM onwards — St. Joseph School Turf Ground, Orlem, Malad</p><Countdown /></div></section></Reveal>
+          <Reveal><section id="countdown" className="section-shell relative py-20 md:py-28 px-6"><div className="max-w-5xl mx-auto text-center flex flex-col items-center"><p className="font-display text-[10px] md:text-[11px] tracking-[0.38em] uppercase text-midnight-goldMuted mb-4 pl-[0.38em]">Countdown to the Ball</p><h2 className="font-editorial italic text-3xl md:text-5xl text-midnight-ivory mb-4">Orlem Christmas Ball 2026</h2><p className="font-display text-[11px] md:text-xs tracking-[0.2em] uppercase text-midnight-muted mb-10 md:mb-14 pl-[0.2em] max-w-3xl">25 December 2026 ï¿½ 7:30 PM onwards ï¿½ St. Joseph School Turf Ground, Orlem, Malad</p><Countdown /></div></section></Reveal>
           <Reveal><EventDetails /></Reveal>
           <Reveal><HeadlinerSection /></Reveal>
           <Reveal><TicketSection /></Reveal>

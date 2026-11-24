@@ -21,7 +21,7 @@ export default function Scene({ isMobile }: { isMobile: boolean }) {
       <HeroBall isMobile={isMobile} />
 
       {/* Full Christmas scene with trees, ornaments, snowfall, gifts */}
-      <ChristmasArt />
+      <ChristmasArt isMobile={isMobile} />
 
       {/* restrained atmospheric particles - reduced for performance */}
       <Sparkles count={isMobile ? 12 : 80} scale={[14, 10, 10]} size={isMobile ? 1.4 : 1.8} speed={0.18} opacity={0.22} color="#f2ebdd" />

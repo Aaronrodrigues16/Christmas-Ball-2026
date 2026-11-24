@@ -406,7 +406,19 @@ function GroundGlow() {
   )
 }
 
-export default function ChristmasArt() {
+export default function ChristmasArt({ isMobile }: { isMobile: boolean }) {
+  const trees = isMobile ? [
+    { pos: [-1.75, -1.85, -2.8] as [number, number, number], s: 0.90 },
+    { pos: [1.75, -1.90, -2.9] as [number, number, number], s: 0.85 },
+    { pos: [-2.20, -2.15, -4.5] as [number, number, number], s: 0.70 },
+    { pos: [2.20, -2.15, -4.6] as [number, number, number], s: 0.70 },
+    { pos: [0.00, -2.45, -3.6] as [number, number, number], s: 0.65 },
+  ] : [
+    { pos: [-5.2, -2.7, -3.5] as [number, number, number], s: 1.15 },
+    { pos: [5.0, -2.8, -3.8] as [number, number, number], s: 1.05 },
+    { pos: [-3.2, -2.9, -5.8] as [number, number, number], s: 0.80 },
+    { pos: [3.0, -2.9, -6.0] as [number, number, number], s: 0.75 },
+  ]
   return (
     <group>
       <Snowfall />
@@ -414,10 +426,7 @@ export default function ChristmasArt() {
       <ChristmasStar />
       <CandyCaneRings />
       <HeroChristmasTree />
-      <MiniChristmasTree position={[-5.2, -2.7, -3.5]} scale={1.15} />
-      <MiniChristmasTree position={[5.0, -2.8, -3.8]} scale={1.05} />
-      <MiniChristmasTree position={[-3.2, -2.9, -5.8]} scale={0.8} />
-      <MiniChristmasTree position={[3.0, -2.9, -6.0]} scale={0.75} />
+      {trees.map((t, i) => <MiniChristmasTree key={i} position={t.pos} scale={t.s} />)}
       <GiftBoxes />
       <CandyCanes />
       <StringLights />
