@@ -2,9 +2,9 @@ import { useState } from 'react'
 import CheckoutModal from './CheckoutModal'
 
 const TIERS = [
-  { name: 'Kids Below 3', tag: 'Free Entry', desc: 'Complimentary entry for children under 3 years.', points: ['Official event entry', 'Instant QR code ticket via email'] },
-  { name: 'Children Below 10', tag: '@ Rs 1000', desc: 'Discounted pass for children below 10 years.', points: ['Official event entry', 'Instant QR code ticket via email'] },
-  { name: 'Per Person Adult', tag: '@ Rs 3500', desc: 'Standard adult pass for Orlem Christmas Ball 2026.', points: ['Official event entry', 'Instant QR code ticket via email', 'Secure Razorpay checkout'] },
+  { name: 'Kids Below 3', tag: 'Free Entry', desc: 'Complimentary entry for children under 3 years.', points: ['Official event entry', 'Instant QR code ticket via email'], requiresSeat: false },
+  { name: 'Children Below 10', tag: '@ Rs 1000', desc: 'Discounted pass for children below 10 years.', points: ['Official event entry', 'Instant QR code ticket via email', 'Seat selection included'], requiresSeat: true },
+  { name: 'Per Person Adult', tag: '@ Rs 3500', desc: 'Standard adult pass for Orlem Christmas Ball 2026.', points: ['Official event entry', 'Instant QR code ticket via email', 'Secure Razorpay checkout', 'Seat selection included'], requiresSeat: true },
 ]
 
 export default function TicketSection() {
