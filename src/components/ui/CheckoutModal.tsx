@@ -155,27 +155,33 @@ export default function CheckoutModal({ open, onClose }: Props) {
                       <p className="font-display text-[10px] tracking-[0.18em] uppercase text-midnight-gold">
                         {tier.price === 0 ? 'Free' : `₹${tier.price.toLocaleString('en-IN')}`}
                       </p>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="btn-gold h-8 w-8 disabled:opacity-40"
-                          onClick={() => setQuantity(tier.id, -1)}
-                          disabled={tier.quantity === 0}
-                          aria-label={`Decrease ${tier.name}`}
-                        >
-                          -
-                        </button>
-                        <span className="w-6 text-center font-display text-sm text-midnight-ivory">{tier.quantity}</span>
-                        <button
-                          type="button"
-                          className="btn-gold h-8 w-8 disabled:opacity-40"
-                          onClick={() => setQuantity(tier.id, 1)}
-                          disabled={tier.quantity >= MAX_PER_TIER}
-                          aria-label={`Increase ${tier.name}`}
-                        >
-                          +
-                        </button>
-                      </div>
+                      {tier.id === 'kids' ? (
+                        <span className="px-3 py-1.5 text-xs font-display tracking-[0.18em] uppercase bg-midnight-gold/15 text-midnight-gold border border-midnight-gold/30 rounded-full">
+                          No ticket required
+                        </span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="btn-gold h-8 w-8 disabled:opacity-40"
+                            onClick={() => setQuantity(tier.id, -1)}
+                            disabled={tier.quantity === 0}
+                            aria-label={`Decrease ${tier.name}`}
+                          >
+                            -
+                          </button>
+                          <span className="w-6 text-center font-display text-sm text-midnight-ivory">{tier.quantity}</span>
+                          <button
+                            type="button"
+                            className="btn-gold h-8 w-8 disabled:opacity-40"
+                            onClick={() => setQuantity(tier.id, 1)}
+                            disabled={tier.quantity >= MAX_PER_TIER}
+                            aria-label={`Increase ${tier.name}`}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
